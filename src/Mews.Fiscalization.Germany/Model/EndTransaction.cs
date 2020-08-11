@@ -10,7 +10,7 @@ namespace Mews.Fiscalization.Germany.Model
             DateTime end,
             string certificateSerial,
             string signature,
-            string signatureCounter,
+            int signatureCounter,
             string signatureAlgorithm,
             string signaturePublicKey,
             string qrCodeData)
@@ -36,7 +36,7 @@ namespace Mews.Fiscalization.Germany.Model
 
         public string Signature { get; }
 
-        public string SignatureCounter { get; }
+        public int SignatureCounter { get; }
 
         public string SignatureAlgorithm { get; }
 
