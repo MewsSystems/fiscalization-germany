@@ -1,7 +1,7 @@
 ﻿using Fiskaly;
 using Fiskaly.Client.Models;
-using Fiskaly.Errors;
 using Mews.Fiscalization.Germany.Model;
+using Mews.Fiscalization.Germany.Model.Types;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -14,34 +14,34 @@ namespace Mews.Fiscalization.Germany
     {
         private static readonly string Endpoint = "https://kassensichv.io/api/v1";
 
-        public string ApiKey { get; }
+        public ApiKey ApiKey { get; }
 
-        public string ApiSecret { get; }
+        public ApiSecret ApiSecret { get; }
 
-        public string ClientId { get; }
+        public ClientId ClientId { get; }
 
-        public string TssId { get; }
+        public TssId TssId { get; }
 
         public FiskalyHttpClient Client { get; }
 
-        public FiskalyClient(string apiKey, string apiSecret, string clientId, string tssId)
+        public FiskalyClient(ApiKey apiKey, ApiSecret apiSecret, ClientId clientId, TssId tssId)
         {
             ApiKey = apiKey;
             ApiSecret = apiSecret;
             ClientId = clientId;
             TssId = tssId;
-            Client = new FiskalyHttpClient(apiKey, apiSecret, Endpoint);
+            Client = new FiskalyHttpClient(apiKey.Value, apiSecret.Value, Endpoint);
         }
 
         public ResponseResult<StartTransaction, Exception> StartTransaction()
         {
             var startTransactionRequest = new Dto.TransactionRequest
             {
-                ClientId = ClientId,
+                ClientId = ClientId.Value,
                 State = Dto.State.ACTIVE.ToString()
             };
             var payload = JsonConvert.SerializeObject(startTransactionRequest, Formatting.None);
-            var response = Send(payload);
+            var response = Send(method: HttpMethod.Put, path: "tx", pathValue: Guid.NewGuid().ToString(), payload: payload);
 
             if (response.IsSuccess)
             {
@@ -58,13 +58,15 @@ namespace Mews.Fiscalization.Germany
         {
             var payload = JsonConvert.SerializeObject(Serialize(bill), Formatting.None);
             var response = Send(
+                method: HttpMethod.Put,
+                path: "tx",
+                pathValue: transactionId,
                 payload: payload,
-                transactionId: transactionId,
                 query: new Dictionary<string, string>() 
-                { 
+                {
                     { 
                         "last_revision", latestRevision 
-                    } 
+                    }
                 }
             );
 
@@ -89,15 +91,35 @@ namespace Mews.Fiscalization.Germany
             }
         }
 
-        private ResponseResult<FiskalyHttpResponse, Exception> Send(string payload, string transactionId = null, Dictionary<string, string> query = null)
+        public ResponseResult<Client, Exception> GetClient()
         {
-            var bodyBytes = Encoding.UTF8.GetBytes(payload);
+            var response = Send(HttpMethod.Get, "client", ClientId.Value);
+
+            if (response.IsSuccess)
+            {
+                var client = JsonConvert.DeserializeObject<Dto.Client>(Encoding.UTF8.GetString(response.SuccessResult.Body));
+                return new ResponseResult<Client, Exception>(successResult: new Client(
+                    serialNumber: client.SerialNumber,
+                    created: DateTimeOffset.FromUnixTimeSeconds(client.TimeCreation).DateTime,
+                    updated: DateTimeOffset.FromUnixTimeSeconds(client.TimeUpdate).DateTime,
+                    tssId: client.TssId.ToString(),
+                    id: client.Id.ToString()
+                ));
+            }
+            else
+            {
+                return new ResponseResult<Client, Exception>(errorResult: response.ErrorResult);
+            }
+        }
+
+        private ResponseResult<FiskalyHttpResponse, Exception> Send(HttpMethod method, string path, string pathValue, string payload = null, Dictionary<string, string> query = null)
+        {
             try
             {
                 return new ResponseResult<FiskalyHttpResponse, Exception>(successResult: Client.Request(
-                    method: HttpMethod.Put.ToString(),
-                    path: $"/tss/{TssId}/tx/{transactionId ?? Guid.NewGuid().ToString()}",
-                    body: bodyBytes,
+                    method: method.ToString(),
+                    path: $"/tss/{TssId.Value}/{path}/{pathValue}",
+                    body: payload != null ? Encoding.UTF8.GetBytes(payload) : null,
                     headers: null,
                     query: query
                 ));
@@ -112,7 +134,7 @@ namespace Mews.Fiscalization.Germany
         {
             return new Dto.EndTransaction
             {
-                ClientId = ClientId,
+                ClientId = ClientId.Value,
                 State = Dto.State.FINISHED.ToString(),
                 Schema = new Dto.Schema
                 {
