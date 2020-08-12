@@ -1,11 +1,13 @@
 ﻿using Mews.Fiscalization.Germany.Model;
 using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace Mews.Fiscalization.Germany
 {
     internal static class Serializer
     {
-        public static  Dto.EndTransaction SerializeTransaction(Bill bill, Guid clientId)
+        public static  Dto.EndTransaction SerializeTransaction(IEnumerable<Bill> bills, Guid clientId, ReceiptType receiptType)
         {
             return new Dto.EndTransaction
             {
@@ -17,27 +19,31 @@ namespace Mews.Fiscalization.Germany
                     {
                         Receipt = new Dto.Receipt
                         {
-                            AmountsPerPaymentType = new Dto.AmountsPerPaymentType[]
-                            {
-                                new Dto.AmountsPerPaymentType
-                                {
-                                    Amount = bill.Net.ToString(),
-                                    CurrencyCode = bill.CurrencyCode,
-                                    PaymentType = SerializePaymentType(bill.PaymentType).ToString()
-                                }
-                            },
-                            AmountsPerVatRate = new Dto.AmountsPerVatRate[]
-                            {
-                                new Dto.AmountsPerVatRate
-                                {
-                                    Amount = bill.Gross.ToString(),
-                                    VatRate = SerializeVatRateType(bill.VatRateType).ToString()
-                                }
-                            },
-                            ReceiptType = SerializeReceiptType(bill.ReceiptType).ToString()
+                            AmountsPerPaymentType = bills.Select(b => SerializeAmountsPerPayment(b)).ToArray(),
+                            AmountsPerVatRate = bills.Select(b => SerializeAmountsPerVatRate(b)).ToArray(),
+                            ReceiptType = SerializeReceiptType(receiptType).ToString()
                         }
                     }
                 }
+            };
+        }
+
+        private static Dto.AmountsPerPaymentType SerializeAmountsPerPayment(Bill bill)
+        {
+            return new Dto.AmountsPerPaymentType
+            {
+                Amount = bill.Net.ToString(),
+                CurrencyCode = bill.CurrencyCode,
+                PaymentType = SerializePaymentType(bill.PaymentType).ToString()
+            };
+        }
+
+        private static Dto.AmountsPerVatRate SerializeAmountsPerVatRate(Bill bill)
+        {
+            return new Dto.AmountsPerVatRate
+            {
+                Amount = bill.Gross.ToString(),
+                VatRate = SerializeVatRateType(bill.VatRateType).ToString()
             };
         }
 

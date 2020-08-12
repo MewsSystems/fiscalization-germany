@@ -23,9 +23,8 @@
 
     public sealed class Bill
     {
-        public Bill(ReceiptType receiptType, PaymentType paymentType, VatRateType vatRateType, string currencyCode, decimal net, decimal gross)
+        public Bill(PaymentType paymentType, VatRateType vatRateType, string currencyCode, decimal net, decimal gross)
         {
-            ReceiptType = receiptType;
             PaymentType = paymentType;
             VatRateType = vatRateType;
             CurrencyCode = currencyCode;

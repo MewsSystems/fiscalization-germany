@@ -49,9 +49,9 @@ namespace Mews.Fiscalization.Germany
             }
         }
 
-        public ResponseResult<EndTransaction, Exception> EndTransaction(Guid clientId, Guid tssId, Bill bill, string transactionId, string latestRevision)
+        public ResponseResult<EndTransaction, Exception> EndTransaction(Guid clientId, Guid tssId, IEnumerable<Bill> bills, ReceiptType receiptType, string transactionId, string latestRevision)
         {
-            var payload = JsonConvert.SerializeObject(Serializer.SerializeTransaction(bill, clientId), Formatting.None);
+            var payload = JsonConvert.SerializeObject(Serializer.SerializeTransaction(bills, clientId, receiptType), Formatting.None);
             var response = Send(
                 tssId: tssId,
                 method: HttpMethod.Put,
