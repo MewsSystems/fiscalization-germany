@@ -31,7 +31,7 @@ namespace Mews.Fiscalization.Germany
         {
             return new Dto.AmountsPerPaymentType
             {
-                Amount = payment.Amount.ToString(),
+                Amount = SerializeAmount(payment.Amount),
                 CurrencyCode = payment.CurrencyCode,
                 PaymentType = SerializePaymentType(payment.Type).ToString()
             };
@@ -41,9 +41,15 @@ namespace Mews.Fiscalization.Germany
         {
             return new Dto.AmountsPerVatRate
             {
-                Amount = item.Amount.ToString(),
+                Amount = SerializeAmount(item.Amount),
                 VatRate = SerializeVatRateType(item.VatRateType).ToString()
             };
+        }
+
+        private static string SerializeAmount(decimal amount)
+        {
+            var precision = BitConverter.GetBytes(decimal.GetBits(amount)[3])[2];
+            return precision < 2 ? amount.ToString("F") : amount.ToString();
         }
 
         private static Dto.ReceiptType SerializeBillType(BillType type)

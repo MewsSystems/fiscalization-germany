@@ -49,14 +49,14 @@ namespace Mews.Fiscalization.Germany
             }
         }
 
-        public ResponseResult<EndTransaction, Exception> EndTransaction(Guid clientId, Guid tssId, Bill bill, string transactionId, string latestRevision)
+        public ResponseResult<EndTransaction, Exception> EndTransaction(Guid clientId, Guid tssId, Bill bill, Guid transactionId, string latestRevision)
         {
             var payload = JsonConvert.SerializeObject(Serializer.SerializeTransaction(bill, clientId), Formatting.None);
             var response = Send(
                 tssId: tssId,
                 method: HttpMethod.Put,
                 path: "tx",
-                pathValue: transactionId,
+                pathValue: transactionId.ToString(),
                 payload: payload,
                 query: new Dictionary<string, string>() { { "last_revision", latestRevision } }
             );
