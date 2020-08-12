@@ -2,16 +2,18 @@
 
 namespace Mews.Fiscalization.Germany.Model
 {
-    public sealed class EndTransaction
+    public sealed class Transaction
     {
-        public EndTransaction(
+        public Transaction(
+            Guid id,
             string number,
-            DateTime startUtc,
-            DateTime endUtc,
-            string certificateSerial,
-            Signature signature,
-            string qrCodeData)
+            DateTime? startUtc,
+            DateTime? endUtc = null,
+            string certificateSerial = null,
+            Signature signature = null,
+            string qrCodeData = null)
         {
+            Id = id;
             Number = number;
             StartUtc = startUtc;
             EndUtc = endUtc;
@@ -20,11 +22,13 @@ namespace Mews.Fiscalization.Germany.Model
             QrCodeData = qrCodeData;
         }
 
+        public Guid Id { get; }
+
         public string Number { get; }
         
-        public DateTime StartUtc { get; }
+        public DateTime? StartUtc { get; }
 
-        public DateTime EndUtc { get; }
+        public DateTime? EndUtc { get; }
 
         public string CertificateSerial { get; }
 

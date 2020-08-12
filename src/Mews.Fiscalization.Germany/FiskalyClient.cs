@@ -28,7 +28,7 @@ namespace Mews.Fiscalization.Germany
             Client = new FiskalyHttpClient(apiKey.Value, apiSecret.Value, Endpoint);
         }
 
-        public ResponseResult<StartTransaction, Exception> StartTransaction(Guid clientId, Guid tssId)
+        public ResponseResult<Transaction, Exception> StartTransaction(Guid clientId, Guid tssId)
         {
             var startTransactionRequest = new Dto.TransactionRequest
             {
@@ -41,15 +41,19 @@ namespace Mews.Fiscalization.Germany
             if (response.IsSuccess)
             {
                 var transaction = JsonConvert.DeserializeObject<Dto.Transaction>(Encoding.UTF8.GetString(response.SuccessResult.Body));
-                return new ResponseResult<StartTransaction, Exception>(successResult: new StartTransaction(transaction.Id, transaction.LatestRevision.ToString()));
+                return new ResponseResult<Transaction, Exception>(successResult: new Transaction(
+                    id: transaction.Id,
+                    number: transaction.Number.ToString(),
+                    startUtc: transaction.TimeStart.FromUnixTime()
+                ));
             }
             else
             {
-                return new ResponseResult<StartTransaction, Exception>(errorResult: response.ErrorResult);
+                return new ResponseResult<Transaction, Exception>(errorResult: response.ErrorResult);
             }
         }
 
-        public ResponseResult<EndTransaction, Exception> EndTransaction(Guid clientId, Guid tssId, Bill bill, Guid transactionId, string latestRevision)
+        public ResponseResult<Transaction, Exception> EndTransaction(Guid clientId, Guid tssId, Bill bill, Guid transactionId, string latestRevision)
         {
             var payload = JsonConvert.SerializeObject(Serializer.SerializeTransaction(bill, clientId), Formatting.None);
             var response = Send(
@@ -65,7 +69,8 @@ namespace Mews.Fiscalization.Germany
             {
                 var transaction = JsonConvert.DeserializeObject<Dto.Transaction>(Encoding.UTF8.GetString(response.SuccessResult.Body));
                 var signature = transaction.Signature;
-                return new ResponseResult<EndTransaction, Exception>(successResult: new EndTransaction(
+                return new ResponseResult<Transaction, Exception>(successResult: new Transaction(
+                    id: transaction.Id,
                     number: transaction.Number.ToString(),
                     startUtc: transaction.TimeStart.FromUnixTime(),
                     endUtc: transaction.TimeEnd.FromUnixTime(),
@@ -81,7 +86,7 @@ namespace Mews.Fiscalization.Germany
             }
             else
             {
-                return new ResponseResult<EndTransaction, Exception>(errorResult: response.ErrorResult);
+                return new ResponseResult<Transaction, Exception>(errorResult: response.ErrorResult);
             }
         }
 
