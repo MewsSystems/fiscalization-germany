@@ -1,4 +1,5 @@
 ﻿using Newtonsoft.Json;
+using System;
 
 namespace Mews.Fiscalization.Germany.Dto
 {
@@ -8,6 +9,6 @@ namespace Mews.Fiscalization.Germany.Dto
         public string State { get; set; }
 
         [JsonProperty("client_id")]
-        public string ClientId { get; set; }
+        public Guid ClientId { get; set; }
     }
 }

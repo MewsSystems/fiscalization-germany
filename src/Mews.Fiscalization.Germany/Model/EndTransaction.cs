@@ -6,41 +6,29 @@ namespace Mews.Fiscalization.Germany.Model
     {
         public EndTransaction(
             string number,
-            DateTime start,
-            DateTime end,
+            DateTime startUtc,
+            DateTime endUtc,
             string certificateSerial,
-            string signature,
-            int signatureCounter,
-            string signatureAlgorithm,
-            string signaturePublicKey,
+            Signature signature,
             string qrCodeData)
         {
             Number = number;
-            Start = start;
-            End = end;
+            StartUtc = startUtc;
+            EndUtc = endUtc;
             CertificateSerial = certificateSerial;
             Signature = signature;
-            SignatureCounter = signatureCounter;
-            SignatureAlgorithm = signatureAlgorithm;
-            SignaturePublicKey = signaturePublicKey;
             QrCodeData = qrCodeData;
         }
 
         public string Number { get; }
         
-        public DateTime Start { get; }
+        public DateTime StartUtc { get; }
 
-        public DateTime End { get; }
+        public DateTime EndUtc { get; }
 
         public string CertificateSerial { get; }
 
-        public string Signature { get; }
-
-        public int SignatureCounter { get; }
-
-        public string SignatureAlgorithm { get; }
-
-        public string SignaturePublicKey { get; }
+        public Signature Signature { get; }
 
         public string QrCodeData { get; }
     }

@@ -1,4 +1,5 @@
 ﻿using Newtonsoft.Json;
+using System;
 
 namespace Mews.Fiscalization.Germany.Dto
 {
@@ -59,7 +60,7 @@ namespace Mews.Fiscalization.Germany.Dto
         public State State { get; set; }
 
         [JsonProperty("client_id")]
-        public string ClientId { get; set; }
+        public Guid ClientId { get; set; }
 
         [JsonProperty("schema")]
         public Schema Schema { get; set; }
@@ -80,13 +81,13 @@ namespace Mews.Fiscalization.Germany.Dto
         public Signature Signature { get; set; }
 
         [JsonProperty("tss_id")]
-        public string TssId { get; set; }
+        public Guid TssId { get; set; }
 
         [JsonProperty("_type")]
         public string Type { get; set; }
 
         [JsonProperty("_id")]
-        public string Id { get; set; }
+        public Guid Id { get; set; }
 
         [JsonProperty("_env")]
         public string Environment { get; set; }

@@ -2,6 +2,7 @@
 using Fiskaly.Client.Models;
 using Mews.Fiscalization.Germany.Model;
 using Mews.Fiscalization.Germany.Model.Types;
+using Mews.Fiscalization.Germany.Utils;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -18,30 +19,24 @@ namespace Mews.Fiscalization.Germany
 
         public ApiSecret ApiSecret { get; }
 
-        public ClientId ClientId { get; }
-
-        public TssId TssId { get; }
-
         public FiskalyHttpClient Client { get; }
 
-        public FiskalyClient(ApiKey apiKey, ApiSecret apiSecret, ClientId clientId, TssId tssId)
+        public FiskalyClient(ApiKey apiKey, ApiSecret apiSecret)
         {
             ApiKey = apiKey;
             ApiSecret = apiSecret;
-            ClientId = clientId;
-            TssId = tssId;
             Client = new FiskalyHttpClient(apiKey.Value, apiSecret.Value, Endpoint);
         }
 
-        public ResponseResult<StartTransaction, Exception> StartTransaction()
+        public ResponseResult<StartTransaction, Exception> StartTransaction(Guid clientId, Guid tssId)
         {
             var startTransactionRequest = new Dto.TransactionRequest
             {
-                ClientId = ClientId.Value,
+                ClientId = clientId,
                 State = Dto.State.ACTIVE.ToString()
             };
             var payload = JsonConvert.SerializeObject(startTransactionRequest, Formatting.None);
-            var response = Send(method: HttpMethod.Put, path: "tx", pathValue: Guid.NewGuid().ToString(), payload: payload);
+            var response = Send(tssId: tssId, method: HttpMethod.Put, path: "tx", pathValue: Guid.NewGuid().ToString(), payload: payload);
 
             if (response.IsSuccess)
             {
@@ -54,34 +49,33 @@ namespace Mews.Fiscalization.Germany
             }
         }
 
-        public ResponseResult<EndTransaction, Exception> EndTransaction(Bill bill, string transactionId, string latestRevision)
+        public ResponseResult<EndTransaction, Exception> EndTransaction(Guid clientId, Guid tssId, Bill bill, string transactionId, string latestRevision)
         {
-            var payload = JsonConvert.SerializeObject(Serialize(bill), Formatting.None);
+            var payload = JsonConvert.SerializeObject(Serializer.SerializeTransaction(bill, clientId), Formatting.None);
             var response = Send(
+                tssId: tssId,
                 method: HttpMethod.Put,
                 path: "tx",
                 pathValue: transactionId,
                 payload: payload,
-                query: new Dictionary<string, string>() 
-                {
-                    { 
-                        "last_revision", latestRevision 
-                    }
-                }
+                query: new Dictionary<string, string>() { { "last_revision", latestRevision } }
             );
 
             if (response.IsSuccess)
             {
                 var transaction = JsonConvert.DeserializeObject<Dto.Transaction>(Encoding.UTF8.GetString(response.SuccessResult.Body));
+                var signature = transaction.Signature;
                 return new ResponseResult<EndTransaction, Exception>(successResult: new EndTransaction(
                     number: transaction.Number.ToString(),
-                    start: DateTimeOffset.FromUnixTimeSeconds(transaction.TimeStart).DateTime,
-                    end: DateTimeOffset.FromUnixTimeSeconds(transaction.TimeEnd).DateTime,
+                    startUtc: transaction.TimeStart.ToDateTime(),
+                    endUtc: transaction.TimeEnd.ToDateTime(),
                     certificateSerial: transaction.CertificateSerial,
-                    signature: transaction.Signature.Value,
-                    signatureCounter: transaction.Signature.Counter,
-                    signatureAlgorithm: transaction.Signature.Algorithm,
-                    signaturePublicKey: transaction.Signature.PublicKey,
+                    signature: new Signature(
+                        value: signature.Value,
+                        counter: signature.Counter,
+                        algorithm: signature.Algorithm,
+                        publicKey: signature.PublicKey
+                    ),
                     qrCodeData: transaction.QrCodeData
                 ));
             }
@@ -91,19 +85,19 @@ namespace Mews.Fiscalization.Germany
             }
         }
 
-        public ResponseResult<Client, Exception> GetClient()
+        public ResponseResult<Client, Exception> GetClient(Guid clientId, Guid tssId)
         {
-            var response = Send(HttpMethod.Get, "client", ClientId.Value);
+            var response = Send(tssId: tssId, method: HttpMethod.Get, path: "client", pathValue: clientId.ToString());
 
             if (response.IsSuccess)
             {
                 var client = JsonConvert.DeserializeObject<Dto.Client>(Encoding.UTF8.GetString(response.SuccessResult.Body));
                 return new ResponseResult<Client, Exception>(successResult: new Client(
                     serialNumber: client.SerialNumber,
-                    created: DateTimeOffset.FromUnixTimeSeconds(client.TimeCreation).DateTime,
-                    updated: DateTimeOffset.FromUnixTimeSeconds(client.TimeUpdate).DateTime,
-                    tssId: client.TssId.ToString(),
-                    id: client.Id.ToString()
+                    created: client.TimeCreation.ToDateTime(),
+                    updated: client.TimeUpdate.ToDateTime(),
+                    tssId: client.TssId,
+                    id: client.Id
                 ));
             }
             else
@@ -112,13 +106,13 @@ namespace Mews.Fiscalization.Germany
             }
         }
 
-        private ResponseResult<FiskalyHttpResponse, Exception> Send(HttpMethod method, string path, string pathValue, string payload = null, Dictionary<string, string> query = null)
+        private ResponseResult<FiskalyHttpResponse, Exception> Send(Guid tssId, HttpMethod method, string path, string pathValue, string payload = null, Dictionary<string, string> query = null)
         {
             try
             {
                 return new ResponseResult<FiskalyHttpResponse, Exception>(successResult: Client.Request(
                     method: method.ToString(),
-                    path: $"/tss/{TssId.Value}/{path}/{pathValue}",
+                    path: $"/tss/{tssId}/{path}/{pathValue}",
                     body: payload != null ? Encoding.UTF8.GetBytes(payload) : null,
                     headers: null,
                     query: query
@@ -128,87 +122,6 @@ namespace Mews.Fiscalization.Germany
             {
                 throw e;
             }
-        }
-
-        private Dto.EndTransaction Serialize(Bill bill)
-        {
-            return new Dto.EndTransaction
-            {
-                ClientId = ClientId.Value,
-                State = Dto.State.FINISHED.ToString(),
-                Schema = new Dto.Schema
-                {
-                    StandardV1 = new Dto.StandardV1
-                    {
-                        Receipt = new Dto.Receipt
-                        {
-                            AmountsPerPaymentType = new Dto.AmountsPerPaymentType[]
-                            {
-                                new Dto.AmountsPerPaymentType
-                                {
-                                    Amount = bill.Net.ToString(),
-                                    CurrencyCode = bill.CurrencyCode,
-                                    PaymentType = SerializePaymentType(bill.PaymentType).ToString()
-                                }
-                            },
-                            AmountsPerVatRate = new Dto.AmountsPerVatRate[]
-                            {
-                                new Dto.AmountsPerVatRate
-                                {
-                                    Amount = bill.Gross.ToString(),
-                                    VatRate = SerializeVatRateType(bill.VatRateType).ToString()
-                                }
-                            },
-                            ReceiptType = SerializeReceiptType(bill.ReceiptType).ToString()
-                        }
-                    }
-                }
-            };
-        }
-
-        private Dto.ReceiptType SerializeReceiptType(ReceiptType type)
-        {
-            switch (type)
-            {
-                case ReceiptType.Invoice:
-                    return Dto.ReceiptType.INVOICE;
-                case ReceiptType.Receipt:
-                    return Dto.ReceiptType.RECEIPT;
-                default:
-                    throw new NotImplementedException($"Receipt type: {type} is not implemented.");
-            };
-        }
-
-        private Dto.PaymentType SerializePaymentType(PaymentType type)
-        {
-            switch (type)
-            {
-                case PaymentType.Cash:
-                        return Dto.PaymentType.CASH;
-                case PaymentType.NonCash:
-                    return Dto.PaymentType.NON_CASH;
-                default:
-                    throw new NotImplementedException($"Payment type: {type} is not implemented.");
-            };
-        }
-
-        private Dto.VatRateType SerializeVatRateType(VatRateType type)
-        {
-            switch (type)
-            {
-                case VatRateType.None: 
-                    return Dto.VatRateType.NULL;
-                case VatRateType.Normal: 
-                    return Dto.VatRateType.NORMAL;
-                case VatRateType.Reduced: 
-                    return Dto.VatRateType.REDUCED_1;
-                case VatRateType.SpecialRate1:
-                    return Dto.VatRateType.SPECIAL_RATE_1;
-                case VatRateType.SpecialRate2:
-                    return Dto.VatRateType.SPECIAL_RATE_2;
-                default:
-                    throw new NotImplementedException($"Vat rate type: {type} is not implemented.");
-            };
         }
     }
 }

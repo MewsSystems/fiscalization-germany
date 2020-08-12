@@ -1,14 +1,16 @@
-﻿namespace Mews.Fiscalization.Germany.Model
+﻿using System;
+
+namespace Mews.Fiscalization.Germany.Model
 {
     public sealed class StartTransaction
     {
-        public StartTransaction(string id, string latestRevision)
+        public StartTransaction(Guid id, string latestRevision)
         {
             Id = id;
             LatestRevision = latestRevision;
         }
 
-        public string Id { get; }
+        public Guid Id { get; }
 
         public string LatestRevision { get; }
     }

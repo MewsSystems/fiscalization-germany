@@ -4,7 +4,7 @@ namespace Mews.Fiscalization.Germany.Model
 {
     public sealed class Client
     {
-        public Client(string serialNumber, DateTime created, DateTime updated, string tssId, string id)
+        public Client(string serialNumber, DateTime created, DateTime updated, Guid tssId, Guid id)
         {
             SerialNumber = serialNumber;
             Created = created;
@@ -19,8 +19,8 @@ namespace Mews.Fiscalization.Germany.Model
 
         public DateTime Updated { get; }
 
-        public string TssId { get; }
+        public Guid TssId { get; }
 
-        public string Id { get; }
+        public Guid Id { get; }
     }
 }
