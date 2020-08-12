@@ -2,7 +2,7 @@
 {
     public sealed class Signature
     {
-        public Signature(string value, int counter, string algorithm, string publicKey)
+        public Signature(string value, int counter, string algorithm, byte[] publicKey)
         {
             Value = value;
             Counter = counter;
@@ -16,6 +16,6 @@
 
         public string Algorithm { get; }
 
-        public string PublicKey { get; }
+        public byte[] PublicKey { get; }
     }
 }

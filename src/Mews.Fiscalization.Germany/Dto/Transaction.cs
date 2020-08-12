@@ -183,6 +183,6 @@ namespace Mews.Fiscalization.Germany.Dto
         public int Counter { get; set; }
 
         [JsonProperty("public_key")]
-        public string PublicKey { get; set; }
+        public byte[] PublicKey { get; set; }
     }
 }
