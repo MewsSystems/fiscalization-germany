@@ -33,7 +33,7 @@ namespace Mews.Fiscalization.Germany
             var startTransactionRequest = new Dto.TransactionRequest
             {
                 ClientId = clientId,
-                State = Dto.State.ACTIVE.ToString()
+                State = Dto.State.ACTIVE
             };
             var payload = JsonConvert.SerializeObject(startTransactionRequest, Formatting.None);
             var response = Send(tssId: tssId, method: HttpMethod.Put, path: "tx", pathValue: Guid.NewGuid().ToString(), payload: payload);

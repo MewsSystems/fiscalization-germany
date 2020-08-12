@@ -25,7 +25,7 @@ namespace Mews.Fiscalization.Germany.Model
 
     public sealed class Bill
     {
-        public Bill(BillType type, IEnumerable<Payment> payments, IEnumerable<Item> items)
+        public Bill(BillType type, List<Payment> payments, List<Item> items)
         {
             Type = type;
             Payments = payments;
@@ -34,8 +34,8 @@ namespace Mews.Fiscalization.Germany.Model
 
         public BillType Type { get; }
 
-        public IEnumerable<Payment> Payments { get; }
+        public List<Payment> Payments { get; }
 
-        public IEnumerable<Item> Items { get; }
+        public List<Item> Items { get; }
     }
 }

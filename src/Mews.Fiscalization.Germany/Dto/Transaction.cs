@@ -1,4 +1,5 @@
 ﻿using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
 using System;
 
 namespace Mews.Fiscalization.Germany.Dto
@@ -120,28 +121,11 @@ namespace Mews.Fiscalization.Germany.Dto
         public Receipt Receipt { get; set; }
     }
 
-    public partial class Order
-    {
-        [JsonProperty("line_items")]
-        public LineItem[] LineItems { get; set; }
-    }
-
-    public partial class LineItem
-    {
-        [JsonProperty("quantity")]
-        public string Quantity { get; set; }
-
-        [JsonProperty("text")]
-        public string Text { get; set; }
-
-        [JsonProperty("price_per_unit")]
-        public string PricePerUnit { get; set; }
-    }
-
     public partial class Receipt
     {
         [JsonProperty("receipt_type")]
-        public string ReceiptType { get; set; }
+        [JsonConverter(typeof(StringEnumConverter))]
+        public ReceiptType ReceiptType { get; set; }
 
         [JsonProperty("amounts_per_vat_rate")]
         public AmountsPerVatRate[] AmountsPerVatRate { get; set; }
@@ -153,7 +137,8 @@ namespace Mews.Fiscalization.Germany.Dto
     public partial class AmountsPerPaymentType
     {
         [JsonProperty("payment_type")]
-        public string PaymentType { get; set; }
+        [JsonConverter(typeof(StringEnumConverter))]
+        public PaymentType PaymentType { get; set; }
 
         [JsonProperty("amount")]
         public string Amount { get; set; }
@@ -165,7 +150,8 @@ namespace Mews.Fiscalization.Germany.Dto
     public partial class AmountsPerVatRate
     {
         [JsonProperty("vat_rate")]
-        public string VatRate { get; set; }
+        [JsonConverter(typeof(StringEnumConverter))]
+        public VatRateType VatRate { get; set; }
 
         [JsonProperty("amount")]
         public string Amount { get; set; }

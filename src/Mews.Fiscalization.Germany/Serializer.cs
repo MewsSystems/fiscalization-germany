@@ -6,12 +6,12 @@ namespace Mews.Fiscalization.Germany
 {
     internal static class Serializer
     {
-        public static  Dto.EndTransaction SerializeTransaction(Bill bill, Guid clientId)
+        public static Dto.EndTransaction SerializeTransaction(Bill bill, Guid clientId)
         {
             return new Dto.EndTransaction
             {
                 ClientId = clientId,
-                State = Dto.State.FINISHED.ToString(),
+                State = Dto.State.FINISHED,
                 Schema = new Dto.Schema
                 {
                     StandardV1 = new Dto.StandardV1
@@ -20,7 +20,7 @@ namespace Mews.Fiscalization.Germany
                         {
                             AmountsPerPaymentType = bill.Payments.Select(p => SerializePayment(p)).ToArray(),
                             AmountsPerVatRate = bill.Items.Select(i => SerializeItem(i)).ToArray(),
-                            ReceiptType = SerializeBillType(bill.Type).ToString()
+                            ReceiptType = SerializeBillType(bill.Type)
                         }
                     }
                 }
@@ -33,7 +33,7 @@ namespace Mews.Fiscalization.Germany
             {
                 Amount = SerializeAmount(payment.Amount),
                 CurrencyCode = payment.CurrencyCode,
-                PaymentType = SerializePaymentType(payment.Type).ToString()
+                PaymentType = SerializePaymentType(payment.Type)
             };
         }
 
@@ -42,7 +42,7 @@ namespace Mews.Fiscalization.Germany
             return new Dto.AmountsPerVatRate
             {
                 Amount = SerializeAmount(item.Amount),
-                VatRate = SerializeVatRateType(item.VatRateType).ToString()
+                VatRate = SerializeVatRateType(item.VatRateType)
             };
         }
 
