@@ -18,7 +18,7 @@ namespace Mews.Fiscalization.Germany.Utils
             return !isShorterThanMinLength && !exceedsMaxLength;
         }
 
-        public static DateTime ToDateTime(this long value)
+        public static DateTime FromUnixTime(this long value)
         {
             return DateTimeOffset.FromUnixTimeSeconds(value).DateTime;
         }

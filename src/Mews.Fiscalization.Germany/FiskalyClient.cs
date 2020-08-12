@@ -49,9 +49,9 @@ namespace Mews.Fiscalization.Germany
             }
         }
 
-        public ResponseResult<EndTransaction, Exception> EndTransaction(Guid clientId, Guid tssId, IEnumerable<Bill> bills, ReceiptType receiptType, string transactionId, string latestRevision)
+        public ResponseResult<EndTransaction, Exception> EndTransaction(Guid clientId, Guid tssId, Bill bill, string transactionId, string latestRevision)
         {
-            var payload = JsonConvert.SerializeObject(Serializer.SerializeTransaction(bills, clientId, receiptType), Formatting.None);
+            var payload = JsonConvert.SerializeObject(Serializer.SerializeTransaction(bill, clientId), Formatting.None);
             var response = Send(
                 tssId: tssId,
                 method: HttpMethod.Put,
@@ -67,8 +67,8 @@ namespace Mews.Fiscalization.Germany
                 var signature = transaction.Signature;
                 return new ResponseResult<EndTransaction, Exception>(successResult: new EndTransaction(
                     number: transaction.Number.ToString(),
-                    startUtc: transaction.TimeStart.ToDateTime(),
-                    endUtc: transaction.TimeEnd.ToDateTime(),
+                    startUtc: transaction.TimeStart.FromUnixTime(),
+                    endUtc: transaction.TimeEnd.FromUnixTime(),
                     certificateSerial: transaction.CertificateSerial,
                     signature: new Signature(
                         value: signature.Value,
@@ -94,8 +94,8 @@ namespace Mews.Fiscalization.Germany
                 var client = JsonConvert.DeserializeObject<Dto.Client>(Encoding.UTF8.GetString(response.SuccessResult.Body));
                 return new ResponseResult<Client, Exception>(successResult: new Client(
                     serialNumber: client.SerialNumber,
-                    created: client.TimeCreation.ToDateTime(),
-                    updated: client.TimeUpdate.ToDateTime(),
+                    created: client.TimeCreation.FromUnixTime(),
+                    updated: client.TimeUpdate.FromUnixTime(),
                     tssId: client.TssId,
                     id: client.Id
                 ));

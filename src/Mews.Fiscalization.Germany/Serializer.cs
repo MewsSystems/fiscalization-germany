@@ -1,13 +1,12 @@
 ﻿using Mews.Fiscalization.Germany.Model;
 using System;
-using System.Collections.Generic;
 using System.Linq;
 
 namespace Mews.Fiscalization.Germany
 {
     internal static class Serializer
     {
-        public static  Dto.EndTransaction SerializeTransaction(IEnumerable<Bill> bills, Guid clientId, ReceiptType receiptType)
+        public static  Dto.EndTransaction SerializeTransaction(Bill bill, Guid clientId)
         {
             return new Dto.EndTransaction
             {
@@ -19,41 +18,41 @@ namespace Mews.Fiscalization.Germany
                     {
                         Receipt = new Dto.Receipt
                         {
-                            AmountsPerPaymentType = bills.Select(b => SerializeAmountsPerPayment(b)).ToArray(),
-                            AmountsPerVatRate = bills.Select(b => SerializeAmountsPerVatRate(b)).ToArray(),
-                            ReceiptType = SerializeReceiptType(receiptType).ToString()
+                            AmountsPerPaymentType = bill.Payments.Select(p => SerializePayment(p)).ToArray(),
+                            AmountsPerVatRate = bill.Items.Select(i => SerializeItem(i)).ToArray(),
+                            ReceiptType = SerializeBillType(bill.Type).ToString()
                         }
                     }
                 }
             };
         }
 
-        private static Dto.AmountsPerPaymentType SerializeAmountsPerPayment(Bill bill)
+        private static Dto.AmountsPerPaymentType SerializePayment(Payment payment)
         {
             return new Dto.AmountsPerPaymentType
             {
-                Amount = bill.Net.ToString(),
-                CurrencyCode = bill.CurrencyCode,
-                PaymentType = SerializePaymentType(bill.PaymentType).ToString()
+                Amount = payment.Amount.ToString(),
+                CurrencyCode = payment.CurrencyCode,
+                PaymentType = SerializePaymentType(payment.Type).ToString()
             };
         }
 
-        private static Dto.AmountsPerVatRate SerializeAmountsPerVatRate(Bill bill)
+        private static Dto.AmountsPerVatRate SerializeItem(Item item)
         {
             return new Dto.AmountsPerVatRate
             {
-                Amount = bill.Gross.ToString(),
-                VatRate = SerializeVatRateType(bill.VatRateType).ToString()
+                Amount = item.Amount.ToString(),
+                VatRate = SerializeVatRateType(item.VatRateType).ToString()
             };
         }
 
-        private static Dto.ReceiptType SerializeReceiptType(ReceiptType type)
+        private static Dto.ReceiptType SerializeBillType(BillType type)
         {
             switch (type)
             {
-                case ReceiptType.Invoice:
+                case BillType.Invoice:
                     return Dto.ReceiptType.INVOICE;
-                case ReceiptType.Receipt:
+                case BillType.Receipt:
                     return Dto.ReceiptType.RECEIPT;
                 default:
                     throw new NotImplementedException($"Receipt type: {type} is not implemented.");
