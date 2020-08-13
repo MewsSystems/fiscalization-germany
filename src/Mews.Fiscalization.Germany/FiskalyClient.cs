@@ -1,7 +1,7 @@
 ﻿using Fiskaly;
 using Fiskaly.Client.Models;
+using Fiskaly.Errors;
 using Mews.Fiscalization.Germany.Model;
-using Mews.Fiscalization.Germany.Model.Types;
 using Mews.Fiscalization.Germany.Utils;
 using Newtonsoft.Json;
 using System;
@@ -28,48 +28,47 @@ namespace Mews.Fiscalization.Germany
             Client = new FiskalyHttpClient(apiKey.Value, apiSecret.Value, Endpoint);
         }
 
-        public ResponseResult<Transaction, Exception> StartTransaction(Guid clientId, Guid tssId)
+        public ResponseResult<Transaction> StartTransaction(Guid clientId, Guid tssId)
         {
             var startTransactionRequest = new Dto.TransactionRequest
             {
                 ClientId = clientId,
                 State = Dto.State.ACTIVE
             };
-            var payload = JsonConvert.SerializeObject(startTransactionRequest, Formatting.None);
-            var response = Send(tssId: tssId, method: HttpMethod.Put, path: "tx", pathValue: Guid.NewGuid().ToString(), payload: payload);
 
-            if (response.IsSuccess)
+            try
             {
-                var transaction = JsonConvert.DeserializeObject<Dto.Transaction>(Encoding.UTF8.GetString(response.SuccessResult.Body));
-                return new ResponseResult<Transaction, Exception>(successResult: new Transaction(
+                var payload = JsonConvert.SerializeObject(startTransactionRequest, Formatting.None);
+                var response = Send(tssId: tssId, method: HttpMethod.Put, path: "tx", pathValue: Guid.NewGuid().ToString(), payload: payload);
+                var transaction = JsonConvert.DeserializeObject<Dto.Transaction>(Encoding.UTF8.GetString(response.Body));
+                return new ResponseResult<Transaction>(successResult: new Transaction(
                     id: transaction.Id,
                     number: transaction.Number.ToString(),
                     startUtc: transaction.TimeStart.FromUnixTime()
                 ));
             }
-            else
+            catch (FiskalyHttpError e)
             {
-                return new ResponseResult<Transaction, Exception>(errorResult: response.ErrorResult);
+                return new ResponseResult<Transaction>(errorResult: ErrorResult.Map(e));
             }
         }
 
-        public ResponseResult<Transaction, Exception> EndTransaction(Guid clientId, Guid tssId, Bill bill, Guid transactionId, string latestRevision)
+        public ResponseResult<Transaction> EndTransaction(Guid clientId, Guid tssId, Bill bill, Guid transactionId, string latestRevision)
         {
-            var payload = JsonConvert.SerializeObject(Serializer.SerializeTransaction(bill, clientId), Formatting.None);
-            var response = Send(
-                tssId: tssId,
-                method: HttpMethod.Put,
-                path: "tx",
-                pathValue: transactionId.ToString(),
-                payload: payload,
-                query: new Dictionary<string, string>() { { "last_revision", latestRevision } }
-            );
-
-            if (response.IsSuccess)
+            try
             {
-                var transaction = JsonConvert.DeserializeObject<Dto.Transaction>(Encoding.UTF8.GetString(response.SuccessResult.Body));
+                var payload = JsonConvert.SerializeObject(Serializer.SerializeTransaction(bill, clientId), Formatting.None);
+                var response = Send(
+                    tssId: tssId,
+                    method: HttpMethod.Put,
+                    path: "tx",
+                    pathValue: transactionId.ToString(),
+                    payload: payload,
+                    query: new Dictionary<string, string>() { { "last_revision", latestRevision } }
+                );
+                var transaction = JsonConvert.DeserializeObject<Dto.Transaction>(Encoding.UTF8.GetString(response.Body));
                 var signature = transaction.Signature;
-                return new ResponseResult<Transaction, Exception>(successResult: new Transaction(
+                return new ResponseResult<Transaction>(successResult: new Transaction(
                     id: transaction.Id,
                     number: transaction.Number.ToString(),
                     startUtc: transaction.TimeStart.FromUnixTime(),
@@ -84,20 +83,19 @@ namespace Mews.Fiscalization.Germany
                     qrCodeData: transaction.QrCodeData
                 ));
             }
-            else
+            catch (FiskalyHttpError e)
             {
-                return new ResponseResult<Transaction, Exception>(errorResult: response.ErrorResult);
+                return new ResponseResult<Transaction>(errorResult: ErrorResult.Map(e));
             }
         }
 
-        public ResponseResult<Client, Exception> GetClient(Guid clientId, Guid tssId)
+        public ResponseResult<Client> GetClient(Guid clientId, Guid tssId)
         {
-            var response = Send(tssId: tssId, method: HttpMethod.Get, path: "client", pathValue: clientId.ToString());
-
-            if (response.IsSuccess)
+            try
             {
-                var client = JsonConvert.DeserializeObject<Dto.Client>(Encoding.UTF8.GetString(response.SuccessResult.Body));
-                return new ResponseResult<Client, Exception>(successResult: new Client(
+                var response = Send(tssId: tssId, method: HttpMethod.Get, path: "client", pathValue: clientId.ToString());
+                var client = JsonConvert.DeserializeObject<Dto.Client>(Encoding.UTF8.GetString(response.Body));
+                return new ResponseResult<Client>(successResult: new Client(
                     serialNumber: client.SerialNumber,
                     created: client.TimeCreation.FromUnixTime(),
                     updated: client.TimeUpdate.FromUnixTime(),
@@ -105,28 +103,21 @@ namespace Mews.Fiscalization.Germany
                     id: client.Id
                 ));
             }
-            else
+            catch (FiskalyHttpError e)
             {
-                return new ResponseResult<Client, Exception>(errorResult: response.ErrorResult);
+                return new ResponseResult<Client>(errorResult: ErrorResult.Map(e));
             }
         }
 
-        private ResponseResult<FiskalyHttpResponse, Exception> Send(Guid tssId, HttpMethod method, string path, string pathValue, string payload = null, Dictionary<string, string> query = null)
+        private FiskalyHttpResponse Send(Guid tssId, HttpMethod method, string path, string pathValue, string payload = null, Dictionary<string, string> query = null)
         {
-            try
-            {
-                return new ResponseResult<FiskalyHttpResponse, Exception>(successResult: Client.Request(
-                    method: method.ToString(),
-                    path: $"/tss/{tssId}/{path}/{pathValue}",
-                    body: payload != null ? Encoding.UTF8.GetBytes(payload) : null,
-                    headers: null,
-                    query: query
-                ));
-            }
-            catch (Exception e)
-            {
-                throw e;
-            }
+            return Client.Request(
+                method: method.ToString(),
+                path: $"/tss/{tssId}/{path}/{pathValue}",
+                body: payload != null ? Encoding.UTF8.GetBytes(payload) : null,
+                headers: null,
+                query: query
+            );
         }
     }
 }
