@@ -1,4 +1,6 @@
-﻿namespace Mews.Fiscalization.Germany.Model
+﻿using System.Collections.Generic;
+
+namespace Mews.Fiscalization.Germany.Model
 {
     public enum PaymentType
     {
@@ -6,7 +8,7 @@
         NonCash
     }
 
-    public enum ReceiptType
+    public enum BillType
     {
         Receipt,
         Invoice
@@ -23,26 +25,17 @@
 
     public sealed class Bill
     {
-        public Bill(ReceiptType receiptType, PaymentType paymentType, VatRateType vatRateType, string currencyCode, decimal net, decimal gross)
+        public Bill(BillType type, List<Payment> payments, List<Item> items)
         {
-            ReceiptType = receiptType;
-            PaymentType = paymentType;
-            VatRateType = vatRateType;
-            CurrencyCode = currencyCode;
-            Net = net;
-            Gross = gross;
+            Type = type;
+            Payments = payments;
+            Items = items;
         }
 
-        public ReceiptType ReceiptType { get; }
+        public BillType Type { get; }
 
-        public PaymentType PaymentType { get; }
+        public List<Payment> Payments { get; }
 
-        public VatRateType VatRateType { get; }
-
-        public string CurrencyCode { get; }
-
-        public decimal Net { get; }
-
-        public decimal Gross { get; }
+        public List<Item> Items { get; }
     }
 }

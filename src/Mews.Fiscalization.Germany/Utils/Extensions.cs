@@ -1,4 +1,5 @@
-﻿using System.Text.RegularExpressions;
+﻿using System;
+using System.Text.RegularExpressions;
 
 namespace Mews.Fiscalization.Germany.Utils
 {
@@ -15,6 +16,11 @@ namespace Mews.Fiscalization.Germany.Utils
             var isShorterThanMinLength = minLength != null && length < minLength;
             var exceedsMaxLength = maxLength != null && length > maxLength;
             return !isShorterThanMinLength && !exceedsMaxLength;
+        }
+
+        public static DateTime FromUnixTime(this long value)
+        {
+            return DateTimeOffset.FromUnixTimeSeconds(value).DateTime;
         }
     }
 }
