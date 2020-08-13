@@ -8,6 +8,8 @@ namespace Mews.Fiscalization.Germany
     {
         public static Dto.EndTransaction SerializeTransaction(Bill bill, Guid clientId)
         {
+            var groupedPayments = bill.Payments.GroupBy(p => new { p.CurrencyCode, p.Type }).Select(g => new Payment(g.Sum(p => p.Amount), g.Key.Type, g.Key.CurrencyCode));
+            var groupedItems = bill.Items.GroupBy(i => i.VatRateType).Select(g => new Item(g.Sum(i => i.Amount), g.Key));
             return new Dto.EndTransaction
             {
                 ClientId = clientId,
@@ -18,8 +20,8 @@ namespace Mews.Fiscalization.Germany
                     {
                         Receipt = new Dto.Receipt
                         {
-                            AmountsPerPaymentType = bill.Payments.GroupBy(p => p.CurrencyCode).Select(g => SerializePayment(g.First())).ToArray(),
-                            AmountsPerVatRate = bill.Items.GroupBy(i => i.VatRateType).Select(g => SerializeItem(g.First())).ToArray(),
+                            AmountsPerPaymentType = groupedPayments.Select(p => SerializePayment(p)).ToArray(),
+                            AmountsPerVatRate = groupedItems.Select(i => SerializeItem(i)).ToArray(),
                             ReceiptType = SerializeBillType(bill.Type)
                         }
                     }
