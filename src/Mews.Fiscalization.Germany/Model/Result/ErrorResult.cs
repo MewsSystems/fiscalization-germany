@@ -5,29 +5,29 @@ namespace Mews.Fiscalization.Germany.Model
 {
     public sealed class ErrorResult
     {
-        private ErrorResult(string message, string requestId, FiskalyError errorCode)
+        private ErrorResult(string message, string requestId, FiskalyError error)
         {
             Message = message;
             RequestId = requestId;
-            ErrorCode = errorCode;
+            Error = error;
         }
 
         public string Message { get; }
 
         public string RequestId { get; }
 
-        public FiskalyError ErrorCode { get; }
+        public FiskalyError Error { get; }
 
         internal static ErrorResult Map(FiskalyHttpError error)
         {
             return new ErrorResult(
                 message: error.Message,
                 requestId: error.RequestId,
-                errorCode: MapErrorCode(error)
+                error: MapError(error)
             );
         }
 
-        internal static FiskalyError MapErrorCode(FiskalyHttpError error)
+        internal static FiskalyError MapError(FiskalyHttpError error)
         {
             // For some reason, when the credentials are invalid, Fiskaly returns null code but with a message.
             if (error.Code == null && error.Message.Equals("Invalid credentials"))

@@ -20,5 +20,10 @@
                 return SuccessResult != null;
             }
         }
+
+        internal static ResponseResult<TResult> MapError(ErrorResult result)
+        {
+            return new ResponseResult<TResult>(errorResult: result);
+        }
     }
 }
