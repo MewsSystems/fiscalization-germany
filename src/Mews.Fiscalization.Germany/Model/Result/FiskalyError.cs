@@ -4,9 +4,6 @@
     {
         InvalidTssId,
         InvalidClientId,
-        InvalidCredentials,
-        InvalidTransactionOperation,
-        InvalidTransactionRequest,
-        InvalidApiVersion
+        InvalidCredentials
     }
 }
