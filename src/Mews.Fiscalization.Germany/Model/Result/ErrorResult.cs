@@ -5,7 +5,7 @@ namespace Mews.Fiscalization.Germany.Model
 {
     public sealed class ErrorResult
     {
-        internal ErrorResult(string message, string requestId, ResultErrorCode errorCode)
+        private ErrorResult(string message, string requestId, FiskalyError errorCode)
         {
             Message = message;
             RequestId = requestId;
@@ -16,7 +16,7 @@ namespace Mews.Fiscalization.Germany.Model
 
         public string RequestId { get; }
 
-        public ResultErrorCode ErrorCode { get; }
+        public FiskalyError ErrorCode { get; }
 
         internal static ErrorResult Map(FiskalyHttpError error)
         {
@@ -27,28 +27,26 @@ namespace Mews.Fiscalization.Germany.Model
             );
         }
 
-        internal static ResultErrorCode MapErrorCode(FiskalyHttpError error)
+        internal static FiskalyError MapErrorCode(FiskalyHttpError error)
         {
             // For some reason, when the credentials are invalid, Fiskaly returns null code but with a message.
             if (error.Code == null && error.Message.Equals("Invalid credentials"))
             {
-                return ResultErrorCode.InvalidCredentials;
+                return FiskalyError.InvalidCredentials;
             }
             switch (error.Code)
             {
-                case "E_TX_UPSERT":
-                    return ResultErrorCode.InvalidTransactionOperation;
                 case "E_TSS_DISABLED":
                 case "E_TSS_NOT_INITIALIZED":
                 case "E_TX_ILLEGAL_TYPE_CHANGE":
                 case "E_TX_NO_TYPE_DEFINED":
-                    return ResultErrorCode.InvalidTransactionRequest;
                 case "E_API_VERSION":
-                    return ResultErrorCode.InvalidApiVersion;
+                case "E_TX_UPSERT":
+                    throw new InvalidOperationException("Invalid request from the library.");
                 case "E_CLIENT_NOT_FOUND":
-                    return ResultErrorCode.InvalidClientId;
+                    return FiskalyError.InvalidClientId;
                 case "E_TSS_NOT_FOUND":
-                    return ResultErrorCode.InvalidTssId;
+                    return FiskalyError.InvalidTssId;
                 default:
                     throw new NotImplementedException($"Error code: {error.Code} is not implemented.");
             }

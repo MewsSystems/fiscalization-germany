@@ -1,6 +1,6 @@
 ﻿namespace Mews.Fiscalization.Germany.Model
 {
-    public enum ResultErrorCode
+    public enum FiskalyError
     {
         InvalidTssId,
         InvalidClientId,

@@ -12,6 +12,8 @@ namespace Mews.Fiscalization.German.Tests
     {
         private static readonly Guid ClientId = new Guid("INSERT_CLIENT_ID");
         private static readonly Guid TssId = new Guid("INSERT_TSS_ID");
+        private static readonly ApiKey ApiKey = new ApiKey("INSERT_API_KEY");
+        private static readonly ApiSecret ApiSecret = new ApiSecret("INSERT_API_Secret");
 
         [Test]
         public void StatusCheckSucceeds()
@@ -39,8 +41,6 @@ namespace Mews.Fiscalization.German.Tests
         {
             var client = GetClient();
             var startedTransaction = client.StartTransaction(ClientId, TssId);
-
-            Thread.Sleep(3000);
             var endedTransaction = client.EndTransaction(ClientId, TssId, GetBill(), startedTransaction.SuccessResult.Id, latestRevision: "1");
             var successResult = endedTransaction.SuccessResult;
             var signature = successResult.Signature;
@@ -52,18 +52,6 @@ namespace Mews.Fiscalization.German.Tests
             Assert.IsNotEmpty(signature.Value);
             Assert.IsNotEmpty(signature.Algorithm);
             Assert.IsNotEmpty(signature.PublicKey);
-        }
-
-        [Test]
-        public void EndTransactionWithInvalidLatestRevisionFails()
-        {
-            var client = GetClient();
-            var startedTransaction = client.StartTransaction(ClientId, TssId);
-
-            Thread.Sleep(3000);
-            var endedTransaction = client.EndTransaction(ClientId, TssId, GetBill(), startedTransaction.SuccessResult.Id, latestRevision: "10");
-            Assert.IsFalse(endedTransaction.IsSuccess);
-            Assert.AreEqual(endedTransaction.ErrorResult.ErrorCode, ResultErrorCode.InvalidTransactionOperation);
         }
 
         private Bill GetBill()
@@ -96,7 +84,7 @@ namespace Mews.Fiscalization.German.Tests
 
         private FiskalyClient GetClient()
         {
-            return new FiskalyClient(new ApiKey("INSERT_API_KEY"), new ApiSecret("INSERT_SECRET_KEY"));
+            return new FiskalyClient(ApiKey, ApiSecret);
         }
     }
 }
