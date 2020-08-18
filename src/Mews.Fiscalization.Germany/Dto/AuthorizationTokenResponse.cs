@@ -2,7 +2,7 @@
 
 namespace Mews.Fiscalization.Germany.Dto
 {
-    public sealed class AuthorizationTokenResponse
+    internal sealed class AuthorizationTokenResponse
     {
         [JsonProperty("access_token")]
         public string AccessToken { get; set; }

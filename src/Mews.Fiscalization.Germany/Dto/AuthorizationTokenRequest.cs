@@ -2,7 +2,7 @@
 
 namespace Mews.Fiscalization.Germany.Dto
 {
-    public sealed class AuthorizationTokenRequest
+    internal sealed class AuthorizationTokenRequest
     {
         [JsonProperty("api_key")]
         public string ApiKey { get; set; }

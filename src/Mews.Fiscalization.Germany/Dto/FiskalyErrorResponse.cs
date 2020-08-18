@@ -2,7 +2,7 @@
 
 namespace Mews.Fiscalization.Germany.Dto
 {
-    public sealed class FiskalyErrorResponse
+    internal sealed class FiskalyErrorResponse
     {
         [JsonProperty("status_code")]
         public string StatusCode { get; set; }

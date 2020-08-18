@@ -19,8 +19,8 @@ namespace Mews.Fiscalization.German.Tests
         public async Task StatusCheckSucceeds()
         {
             var client = GetClient();
-            var accessToken = client.GetAccessToken().Result.SuccessResult;
-            var status = await client.GetClient(accessToken, ClientId, TssId);
+            var accessToken = client.GetAccessTokenAsync().Result.SuccessResult;
+            var status = await client.GetClientAsync(accessToken, ClientId, TssId);
 
             Assert.IsTrue(status.IsSuccess);
         }
@@ -29,8 +29,8 @@ namespace Mews.Fiscalization.German.Tests
         public async Task StartTransactionSucceeds()
         {
             var client = GetClient();
-            var accessToken = client.GetAccessToken().Result.SuccessResult;
-            var startedTransaction = await client.StartTransaction(accessToken, ClientId, TssId);
+            var accessToken = await client.GetAccessTokenAsync();
+            var startedTransaction = await client.StartTransactionAsync(accessToken.SuccessResult, ClientId, TssId);
             var successResult = startedTransaction.SuccessResult;
 
             Assert.IsTrue(startedTransaction.IsSuccess);
@@ -42,9 +42,10 @@ namespace Mews.Fiscalization.German.Tests
         public async Task StartAndFinishTransactionSucceeds()
         {
             var client = GetClient();
-            var accessToken = client.GetAccessToken().Result.SuccessResult;
-            var startedTransaction = client.StartTransaction(accessToken, ClientId, TssId).Result;
-            var endedTransaction = await client.FinishTransaction(accessToken, ClientId, TssId, GetBill(), startedTransaction.SuccessResult.Id, lastRevision: "1");
+            var accessToken = await client.GetAccessTokenAsync();
+            var successAccessTokenResult = accessToken.SuccessResult;
+            var startedTransaction = client.StartTransactionAsync(successAccessTokenResult, ClientId, TssId).Result;
+            var endedTransaction = await client.FinishTransactionAsync(successAccessTokenResult, ClientId, TssId, GetBill(), startedTransaction.SuccessResult.Id, lastRevision: "1");
             var successResult = endedTransaction.SuccessResult;
             var signature = successResult.Signature;
 

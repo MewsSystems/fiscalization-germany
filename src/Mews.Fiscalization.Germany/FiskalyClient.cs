@@ -11,21 +11,15 @@ namespace Mews.Fiscalization.Germany
         public ApiSecret ApiSecret { get; }
 
         private Client Client { get; }
-        private static HttpClient HttpClient { get; }
-
-        static FiskalyClient()
-        {
-            HttpClient = new HttpClient();
-        }
 
         public FiskalyClient(ApiKey apiKey, ApiSecret apiSecret)
         {
             ApiKey = apiKey;
             ApiSecret = apiSecret;
-            Client = new Client(HttpClient);
+            Client = new Client();
         }
 
-        public async Task<ResponseResult<Model.Client>> GetClient(AccessToken token, Guid clientId, Guid tssId)
+        public async Task<ResponseResult<Model.Client>> GetClientAsync(AccessToken token, Guid clientId, Guid tssId)
         {
             return await Client.ProcessRequestAsync<Dto.ClientRequest, Dto.ClientResponse, Model.Client>(
                 method: HttpMethod.Get,
@@ -36,7 +30,7 @@ namespace Mews.Fiscalization.Germany
             ).ConfigureAwait(continueOnCapturedContext: false);
         }
 
-        public async Task<ResponseResult<Transaction>> StartTransaction(AccessToken token, Guid clientId, Guid tssId)
+        public async Task<ResponseResult<Transaction>> StartTransactionAsync(AccessToken token, Guid clientId, Guid tssId)
         {
             var request = RequestCreator.CreateTransaction(clientId);
             return await Client.ProcessRequestAsync<Dto.TransactionRequest, Dto.TransactionResponse, Transaction>(
@@ -48,7 +42,7 @@ namespace Mews.Fiscalization.Germany
             ).ConfigureAwait(continueOnCapturedContext: false);
         }
 
-        public async Task<ResponseResult<Transaction>> FinishTransaction(AccessToken token, Guid clientId, Guid tssId, Bill bill, Guid transactionId, string lastRevision)
+        public async Task<ResponseResult<Transaction>> FinishTransactionAsync(AccessToken token, Guid clientId, Guid tssId, Bill bill, Guid transactionId, string lastRevision)
         {
             var request = RequestCreator.FinishTransaction(clientId, bill);
             return await Client.ProcessRequestAsync<Dto.FinishTransactionRequest, Dto.TransactionResponse, Transaction>(
@@ -60,7 +54,7 @@ namespace Mews.Fiscalization.Germany
             ).ConfigureAwait(continueOnCapturedContext: false);
         }
 
-        public async Task<ResponseResult<AccessToken>> GetAccessToken()
+        public async Task<ResponseResult<AccessToken>> GetAccessTokenAsync()
         {
             var request = RequestCreator.CreateAuthorizationToken(ApiKey, ApiSecret);
             return await Client.ProcessRequestAsync<Dto.AuthorizationTokenRequest, Dto.AuthorizationTokenResponse, AccessToken>(

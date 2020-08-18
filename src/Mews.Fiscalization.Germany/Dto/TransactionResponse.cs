@@ -40,7 +40,7 @@ namespace Mews.Fiscalization.Germany.Dto
         ANNULATION
     }
 
-    public partial class TransactionResponse
+    internal sealed class TransactionResponse
     {
         [JsonProperty("number")]
         public long Number { get; set; }
@@ -97,7 +97,7 @@ namespace Mews.Fiscalization.Germany.Dto
         public string Version { get; set; }
     }
 
-    public partial class Log
+    internal sealed class Log
     {
         [JsonProperty("operation")]
         public string Operation { get; set; }
@@ -109,19 +109,19 @@ namespace Mews.Fiscalization.Germany.Dto
         public string TimestampFormat { get; set; }
     }
 
-    public partial class Schema
+    internal sealed class Schema
     {
         [JsonProperty("standard_v1")]
         public StandardV1 StandardV1 { get; set; }
     }
 
-    public partial class StandardV1
+    internal sealed class StandardV1
     {
         [JsonProperty("receipt")]
         public Receipt Receipt { get; set; }
     }
 
-    public partial class Receipt
+    internal sealed class Receipt
     {
         [JsonProperty("receipt_type")]
         [JsonConverter(typeof(StringEnumConverter))]
@@ -134,7 +134,7 @@ namespace Mews.Fiscalization.Germany.Dto
         public AmountsPerPaymentType[] AmountsPerPaymentType { get; set; }
     }
 
-    public partial class AmountsPerPaymentType
+    internal sealed class AmountsPerPaymentType
     {
         [JsonProperty("payment_type")]
         [JsonConverter(typeof(StringEnumConverter))]
@@ -147,7 +147,7 @@ namespace Mews.Fiscalization.Germany.Dto
         public string CurrencyCode { get; set; }
     }
 
-    public partial class AmountsPerVatRate
+    internal sealed class AmountsPerVatRate
     {
         [JsonProperty("vat_rate")]
         [JsonConverter(typeof(StringEnumConverter))]
@@ -157,7 +157,7 @@ namespace Mews.Fiscalization.Germany.Dto
         public string Amount { get; set; }
     }
 
-    public partial class Signature
+    internal sealed class Signature
     {
         [JsonProperty("value")]
         public string Value { get; set; }

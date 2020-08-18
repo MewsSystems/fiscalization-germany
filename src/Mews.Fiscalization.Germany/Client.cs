@@ -10,14 +10,14 @@ namespace Mews.Fiscalization.Germany
 {
     internal class Client
     {
-        private static readonly string BaseUri = "https://kassensichv.io";
+        private static readonly Uri BaseUri = new Uri("https://kassensichv.io");
         private static readonly string RelativeApiUrl = "api/v1/";
 
         private HttpClient HttpClient { get; }
 
-        internal Client(HttpClient httpClient)
+        internal Client()
         {
-            HttpClient = httpClient;
+            HttpClient = new HttpClient();
         }
 
         internal async Task<ResponseResult<TResult>> ProcessRequestAsync<TRequest, TDto, TResult>(HttpMethod method, string endpoint, TRequest request, Func<TDto, ResponseResult<TResult>> successFunc, AccessToken token = null)
@@ -33,7 +33,7 @@ namespace Mews.Fiscalization.Germany
             where TRequest : class
         {
             var content = new StringContent(JsonConvert.SerializeObject(request, Formatting.None), Encoding.UTF8, "application/json");
-            var uri = new Uri(new Uri(BaseUri), $"{new Uri(RelativeApiUrl, UriKind.Relative)}{endpoint}");
+            var uri = new Uri(BaseUri, $"{RelativeApiUrl}{endpoint}");
             var requestMessage = new HttpRequestMessage(method, uri)
             {
                 Content = content
