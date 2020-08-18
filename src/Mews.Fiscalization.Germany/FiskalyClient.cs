@@ -123,26 +123,5 @@ namespace Mews.Fiscalization.Germany
                 return new ResponseResult<TResult>(errorResult: ErrorResult.Map(e));
             }
         }
-
-        private ResponseResult<TResult> Send<TResult>(Guid tssId, HttpMethod method, string path, string pathValue, string payload = null, Dictionary<string, string> query = null)
-            where TResult : class
-        {
-            try
-            {
-                var response = Client.Request(
-                    method: method.ToString(),
-                    path: $"/tss/{tssId}/{path}/{pathValue}",
-                    body: payload != null ? Encoding.UTF8.GetBytes(payload) : null,
-                    headers: null,
-                    query: query
-                );
-
-                return new ResponseResult<TResult>(successResult: JsonConvert.DeserializeObject<TResult>(Encoding.UTF8.GetString(response.Body)));
-            }
-            catch (FiskalyHttpError e)
-            {
-                return new ResponseResult<TResult>(errorResult: ErrorResult.Map(e));
-            }
-        }
     }
 }
