@@ -3,7 +3,7 @@ using System;
 
 namespace Mews.Fiscalization.Germany.Dto
 {
-    public sealed class Client
+    public sealed class ClientResponse
     {
         [JsonProperty("serial_number")]
         public string SerialNumber { get; set; }

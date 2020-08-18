@@ -40,7 +40,7 @@ namespace Mews.Fiscalization.Germany.Dto
         ANNULATION
     }
 
-    public partial class Transaction
+    public partial class TransactionResponse
     {
         [JsonProperty("number")]
         public long Number { get; set; }

@@ -1,36 +1,31 @@
-﻿using Fiskaly.Errors;
-using System;
+﻿using System;
 
 namespace Mews.Fiscalization.Germany.Model
 {
     public sealed class ErrorResult
     {
-        private ErrorResult(string message, string requestId, FiskalyError error)
+        private ErrorResult(string message, FiskalyError error)
         {
             Message = message;
-            RequestId = requestId;
             Error = error;
         }
 
         public string Message { get; }
 
-        public string RequestId { get; }
-
         public FiskalyError Error { get; }
 
-        internal static ErrorResult Map(FiskalyHttpError error)
+        internal static ErrorResult Map(Dto.FiskalyErrorResponse error)
         {
             return new ErrorResult(
                 message: error.Message,
-                requestId: error.RequestId,
                 error: MapError(error)
             );
         }
 
-        internal static FiskalyError MapError(FiskalyHttpError error)
+        internal static FiskalyError MapError(Dto.FiskalyErrorResponse error)
         {
             // For some reason, when the credentials are invalid, Fiskaly returns null code but with a message.
-            if (error.Code == null && error.Message.Equals("Invalid credentials"))
+            if (error.Code == null && error.Message.Equals("Invalid credentials") || error.Error.Equals("Unauthorized"))
             {
                 return FiskalyError.InvalidCredentials;
             }
