@@ -17,7 +17,7 @@
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\src\Mews.Fiscalization.Germany\Mews.Fiscalization.Germany.csproj" />
+      <ProjectReference Include="..\Mews.Fiscalization.Germany\Mews.Fiscalization.Germany.csproj" />
     </ItemGroup>
 
 </Project>
