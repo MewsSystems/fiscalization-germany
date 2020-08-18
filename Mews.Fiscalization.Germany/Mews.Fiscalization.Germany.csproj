@@ -20,4 +20,10 @@
     <PackageReference Include="fiskaly-dotnet-sdk" Version="1.2.0" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Update="com.fiskaly.client-windows-amd64-v1.2.000.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
 </Project>
