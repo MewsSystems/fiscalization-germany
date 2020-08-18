@@ -1,0 +1,23 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>netstandard2.0</TargetFramework>
+        <Authors>Mews</Authors>
+        <Copyright>Mews</Copyright>
+        <PackageProjectUrl>https://github.com/MewsSystems/fiscalization-germany</PackageProjectUrl>
+        <RepositoryUrl>https://github.com/MewsSystems/fiscalization-germany</RepositoryUrl>
+        <RepositoryType>Git</RepositoryType>
+        <PackageTags>fiscalization germany</PackageTags>
+        <PackageVersion>0.0.3-prerelease</PackageVersion>
+        <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    </PropertyGroup>
+
+    <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+      <OutputPath>bin\</OutputPath>
+    </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="fiskaly-dotnet-sdk" Version="1.2.0" />
+  </ItemGroup>
+
+</Project>
