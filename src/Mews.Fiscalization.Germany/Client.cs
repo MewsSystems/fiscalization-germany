@@ -38,7 +38,11 @@ namespace Mews.Fiscalization.Germany
             {
                 Content = content
             };
-            HttpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token?.Value);
+
+            if (token != null)
+            {
+                HttpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token.Value);
+            }
             return await HttpClient.SendAsync(requestMessage).ConfigureAwait(continueOnCapturedContext: false);
         }
 
