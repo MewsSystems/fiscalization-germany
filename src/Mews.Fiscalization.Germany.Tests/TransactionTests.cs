@@ -19,7 +19,7 @@ namespace Mews.Fiscalization.German.Tests
         public async Task StatusCheckSucceeds()
         {
             var client = GetClient();
-            var accessToken = client.GetAccessTokenAsync().Result.SuccessResult;
+            var accessToken = (await client.GetAccessTokenAsync()).SuccessResult;
             var status = await client.GetClientAsync(accessToken, ClientId, TssId);
 
             Assert.IsTrue(status.IsSuccess);
@@ -44,7 +44,7 @@ namespace Mews.Fiscalization.German.Tests
             var client = GetClient();
             var accessToken = await client.GetAccessTokenAsync();
             var successAccessTokenResult = accessToken.SuccessResult;
-            var startedTransaction = client.StartTransactionAsync(successAccessTokenResult, ClientId, TssId).Result;
+            var startedTransaction = await client.StartTransactionAsync(successAccessTokenResult, ClientId, TssId);
             var endedTransaction = await client.FinishTransactionAsync(successAccessTokenResult, ClientId, TssId, GetBill(), startedTransaction.SuccessResult.Id, lastRevision: "1");
             var successResult = endedTransaction.SuccessResult;
             var signature = successResult.Signature;
