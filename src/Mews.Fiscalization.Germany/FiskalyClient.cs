@@ -1,127 +1,68 @@
-﻿using Fiskaly;
-using Fiskaly.Errors;
-using Mews.Fiscalization.Germany.Model;
-using Mews.Fiscalization.Germany.Utils;
-using Newtonsoft.Json;
+﻿using Mews.Fiscalization.Germany.Model;
 using System;
-using System.Collections.Generic;
 using System.Net.Http;
-using System.Text;
+using System.Threading.Tasks;
 
 namespace Mews.Fiscalization.Germany
 {
     public sealed class FiskalyClient
     {
-        private static readonly string Endpoint = "https://kassensichv.io/api/v1";
-
         public ApiKey ApiKey { get; }
-
         public ApiSecret ApiSecret { get; }
 
-        public FiskalyHttpClient Client { get; }
+        private Client Client { get; }
 
         public FiskalyClient(ApiKey apiKey, ApiSecret apiSecret)
         {
             ApiKey = apiKey;
             ApiSecret = apiSecret;
-            Client = new FiskalyHttpClient(apiKey.Value, apiSecret.Value, Endpoint);
+            Client = new Client();
         }
 
-        public ResponseResult<Transaction> StartTransaction(Guid clientId, Guid tssId)
+        public async Task<ResponseResult<Model.Client>> GetClientAsync(AccessToken token, Guid clientId, Guid tssId)
         {
-            var startTransactionRequest = new Dto.TransactionRequest
-            {
-                ClientId = clientId,
-                State = Dto.State.ACTIVE
-            };
-
-            var payload = JsonConvert.SerializeObject(startTransactionRequest, Formatting.None);
-            return Send<Dto.Transaction, Transaction>(
-                tssId: tssId,
-                method: HttpMethod.Put,
-                path: "tx",
-                pathValue: Guid.NewGuid().ToString(),
-                payload: payload,
-                responseMapper: transaction => new Transaction(
-                    id: transaction.Id,
-                    number: transaction.Number.ToString(),
-                    startUtc: transaction.TimeStart.FromUnixTime()
-                )
-            );
-        }
-
-        public ResponseResult<Transaction> EndTransaction(Guid clientId, Guid tssId, Bill bill, Guid transactionId, string latestRevision)
-        {
-            var payload = JsonConvert.SerializeObject(Serializer.SerializeTransaction(bill, clientId), Formatting.None);
-            return Send<Dto.Transaction, Transaction>(
-                tssId: tssId,
-                method: HttpMethod.Put,
-                path: "tx",
-                pathValue: transactionId.ToString(),
-                payload: payload,
-                query: new Dictionary<string, string>() { { "last_revision", latestRevision } },
-                responseMapper: transaction => new Transaction(
-                    id: transaction.Id,
-                    number: transaction.Number.ToString(),
-                    startUtc: transaction.TimeStart.FromUnixTime(),
-                    endUtc: transaction.TimeEnd.FromUnixTime(),
-                    certificateSerial: transaction.CertificateSerial,
-                    signature: new Signature(
-                        value: transaction.Signature.Value,
-                        counter: transaction.Signature.Counter,
-                        algorithm: transaction.Signature.Algorithm,
-                        publicKey: transaction.Signature.PublicKey
-                    ),
-                    qrCodeData: transaction.QrCodeData
-                )
-            );
-        }
-
-        public ResponseResult<Client> GetClient(Guid clientId, Guid tssId)
-        {
-            return Send<Dto.Client, Client>(
-                tssId: tssId,
+            return await Client.ProcessRequestAsync<Dto.ClientRequest, Dto.ClientResponse, Model.Client>(
                 method: HttpMethod.Get,
-                path: "client",
-                pathValue: clientId.ToString(),
-                responseMapper: client => new Client(
-                    serialNumber: client.SerialNumber,
-                    created: client.TimeCreation.FromUnixTime(),
-                    updated: client.TimeUpdate.FromUnixTime(),
-                    tssId: client.TssId,
-                    id: client.Id
-                )
-            );
+                endpoint: $"tss/{tssId}/client/{clientId}",
+                request: null,
+                successFunc: response => ModelMapper.MapClient(response),
+                token: token
+            ).ConfigureAwait(continueOnCapturedContext: false);
         }
 
-        private ResponseResult<TResult> Send<TResponse, TResult>(
-            Guid tssId,
-            HttpMethod method,
-            string path,
-            string pathValue,
-            Func<TResponse, TResult> responseMapper,
-            string payload = null,
-            Dictionary<string, string> query = null)
-                where TResult : class
-                where TResponse : class
+        public async Task<ResponseResult<Transaction>> StartTransactionAsync(AccessToken token, Guid clientId, Guid tssId)
         {
-            try
-            {
-                var response = Client.Request(
-                    method: method.ToString(),
-                    path: $"/tss/{tssId}/{path}/{pathValue}",
-                    body: payload != null ? Encoding.UTF8.GetBytes(payload) : null,
-                    headers: null,
-                    query: query
-                );
+            var request = RequestCreator.CreateTransaction(clientId);
+            return await Client.ProcessRequestAsync<Dto.TransactionRequest, Dto.TransactionResponse, Transaction>(
+                method: HttpMethod.Put,
+                endpoint: $"tss/{tssId}/tx/{Guid.NewGuid()}",
+                request: request,
+                successFunc: response => ModelMapper.MapTransaction(response),
+                token: token
+            ).ConfigureAwait(continueOnCapturedContext: false);
+        }
 
-                var deserializedResponse = JsonConvert.DeserializeObject<TResponse>(Encoding.UTF8.GetString(response.Body));
-                return new ResponseResult<TResult>(successResult: responseMapper(deserializedResponse));
-            }
-            catch (FiskalyHttpError e)
-            {
-                return new ResponseResult<TResult>(errorResult: ErrorResult.Map(e));
-            }
+        public async Task<ResponseResult<Transaction>> FinishTransactionAsync(AccessToken token, Guid clientId, Guid tssId, Bill bill, Guid transactionId, string lastRevision)
+        {
+            var request = RequestCreator.FinishTransaction(clientId, bill);
+            return await Client.ProcessRequestAsync<Dto.FinishTransactionRequest, Dto.TransactionResponse, Transaction>(
+                method: HttpMethod.Put,
+                endpoint: $"tss/{tssId}/tx/{transactionId}?last_revision={lastRevision}",
+                request: request,
+                successFunc: response => ModelMapper.MapTransaction(response),
+                token: token
+            ).ConfigureAwait(continueOnCapturedContext: false);
+        }
+
+        public async Task<ResponseResult<AccessToken>> GetAccessTokenAsync()
+        {
+            var request = RequestCreator.CreateAuthorizationToken(ApiKey, ApiSecret);
+            return await Client.ProcessRequestAsync<Dto.AuthorizationTokenRequest, Dto.AuthorizationTokenResponse, AccessToken>(
+                method: HttpMethod.Post,
+                endpoint: "auth",
+                request: request,
+                successFunc: response => ModelMapper.MapAccessToken(response)
+            ).ConfigureAwait(continueOnCapturedContext: false);
         }
     }
 }

@@ -4,13 +4,22 @@ using System.Linq;
 
 namespace Mews.Fiscalization.Germany
 {
-    internal static class Serializer
+    internal static class RequestCreator
     {
-        public static Dto.EndTransaction SerializeTransaction(Bill bill, Guid clientId)
+        internal static Dto.TransactionRequest CreateTransaction(Guid clientId)
+        {
+            return new Dto.TransactionRequest
+            {
+                ClientId = clientId,
+                State = Dto.State.ACTIVE
+            };
+        }
+
+        internal static Dto.FinishTransactionRequest FinishTransaction(Guid clientId, Bill bill)
         {
             var groupedPayments = bill.Payments.GroupBy(p => new { p.CurrencyCode, p.Type }).Select(g => new Payment(g.Sum(p => p.Amount), g.Key.Type, g.Key.CurrencyCode));
             var groupedItems = bill.Items.GroupBy(i => i.VatRateType).Select(g => new Item(g.Sum(i => i.Amount), g.Key));
-            return new Dto.EndTransaction
+            return new Dto.FinishTransactionRequest
             {
                 ClientId = clientId,
                 State = Dto.State.FINISHED,
@@ -26,6 +35,15 @@ namespace Mews.Fiscalization.Germany
                         }
                     }
                 }
+            };
+        }
+
+        internal static Dto.AuthorizationTokenRequest CreateAuthorizationToken(ApiKey apiKey, ApiSecret apiSecret)
+        {
+            return new Dto.AuthorizationTokenRequest
+            {
+                ApiKey = apiKey.Value,
+                ApiSecret = apiSecret.Value
             };
         }
 
