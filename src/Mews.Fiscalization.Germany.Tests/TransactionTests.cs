@@ -39,7 +39,7 @@ namespace Mews.Fiscalization.German.Tests
         }
 
         [Test]
-        public async Task StartAndEndTransactionSucceeds()
+        public async Task StartAndFinishTransactionSucceeds()
         {
             var client = GetClient();
             var accessToken = client.GetAccessToken().Result.SuccessResult;
