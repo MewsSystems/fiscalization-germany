@@ -3,7 +3,6 @@ using Mews.Fiscalization.Germany.Model;
 using NUnit.Framework;
 using System;
 using System.Collections.Generic;
-using System.Threading;
 
 namespace Mews.Fiscalization.German.Tests
 {

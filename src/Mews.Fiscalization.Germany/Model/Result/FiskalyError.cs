@@ -4,6 +4,8 @@
     {
         InvalidTssId,
         InvalidClientId,
-        InvalidCredentials
+        InvalidCredentials,
+        InvalidTssOperation,
+        InvalidTransactionOperation
     }
 }

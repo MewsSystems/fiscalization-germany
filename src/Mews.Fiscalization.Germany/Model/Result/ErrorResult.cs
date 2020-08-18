@@ -36,13 +36,15 @@ namespace Mews.Fiscalization.Germany.Model
             }
             switch (error.Code)
             {
+                case "E_TX_UPSERT":
+                    return FiskalyError.InvalidTransactionOperation;
                 case "E_TSS_DISABLED":
                 case "E_TSS_NOT_INITIALIZED":
+                    return FiskalyError.InvalidTssOperation;
                 case "E_TX_ILLEGAL_TYPE_CHANGE":
                 case "E_TX_NO_TYPE_DEFINED":
                 case "E_API_VERSION":
-                case "E_TX_UPSERT":
-                    throw new InvalidOperationException("Invalid request from the library.");
+                    throw new InvalidOperationException($"Invalid request from the library with error code: {error.Code}");
                 case "E_CLIENT_NOT_FOUND":
                     return FiskalyError.InvalidClientId;
                 case "E_TSS_NOT_FOUND":
