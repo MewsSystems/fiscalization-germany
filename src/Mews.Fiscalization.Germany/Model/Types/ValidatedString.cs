@@ -1,6 +1,6 @@
 ﻿using Mews.Fiscalization.Germany.Utils;
 
-namespace Mews.Fiscalization.Germany.Model.Types
+namespace Mews.Fiscalization.Germany.Model
 {
     public abstract class ValidatedString
     {

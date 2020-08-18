@@ -1,4 +1,4 @@
-﻿namespace Mews.Fiscalization.Germany.Model.Types
+﻿namespace Mews.Fiscalization.Germany.Model
 {
     public sealed class ApiSecret : ValidatedString
     {

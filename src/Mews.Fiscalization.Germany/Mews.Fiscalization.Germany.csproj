@@ -8,7 +8,7 @@
         <RepositoryUrl>https://github.com/MewsSystems/fiscalization-germany</RepositoryUrl>
         <RepositoryType>Git</RepositoryType>
         <PackageTags>fiscalization germany</PackageTags>
-        <PackageVersion>0.0.1-prerelease</PackageVersion>
+        <PackageVersion>0.0.2-prerelease</PackageVersion>
         <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     </PropertyGroup>
 
