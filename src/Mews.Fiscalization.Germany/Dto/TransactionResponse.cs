@@ -141,7 +141,7 @@ namespace Mews.Fiscalization.Germany.Dto
         public PaymentType PaymentType { get; set; }
 
         [JsonProperty("amount")]
-        public decimal Amount { get; set; }
+        public string Amount { get; set; }
 
         [JsonProperty("currency_code")]
         public string CurrencyCode { get; set; }
@@ -154,7 +154,7 @@ namespace Mews.Fiscalization.Germany.Dto
         public VatRateType VatRate { get; set; }
 
         [JsonProperty("amount")]
-        public decimal Amount { get; set; }
+        public string Amount { get; set; }
     }
 
     internal sealed class Signature
