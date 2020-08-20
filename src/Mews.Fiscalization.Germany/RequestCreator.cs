@@ -21,7 +21,6 @@ namespace Mews.Fiscalization.Germany
         {
             var groupedPayments = bill.Payments.GroupBy(p => new { p.CurrencyCode, p.Type }).Select(g => new Payment(g.Sum(p => p.Amount), g.Key.Type, g.Key.CurrencyCode));
             var groupedItems = bill.Items.GroupBy(i => i.VatRateType).Select(g => new Item(g.Sum(i => i.Amount), g.Key));
-            Thread.CurrentThread.CurrentCulture = new CultureInfo("cz-CZ");
             return new Dto.FinishTransactionRequest
             {
                 ClientId = clientId,
@@ -54,7 +53,7 @@ namespace Mews.Fiscalization.Germany
         {
             return new Dto.AmountsPerPaymentType
             {
-                Amount = (payment.Amount + 0.00m).ToString("F"),
+                Amount = (payment.Amount + 0.00m).ToString("F", new CultureInfo("cz-CZ")),
                 CurrencyCode = payment.CurrencyCode,
                 PaymentType = SerializePaymentType(payment.Type)
             };
@@ -64,7 +63,7 @@ namespace Mews.Fiscalization.Germany
         {
             return new Dto.AmountsPerVatRate
             {
-                Amount = (item.Amount + 0.00m).ToString("F"),
+                Amount = (item.Amount + 0.00m).ToString("F", new CultureInfo("cz-CZ")),
                 VatRate = SerializeVatRateType(item.VatRateType)
             };
         }
