@@ -1,6 +1,8 @@
 ﻿using Mews.Fiscalization.Germany.Model;
 using System;
+using System.Globalization;
 using System.Linq;
+using System.Threading;
 
 namespace Mews.Fiscalization.Germany
 {
@@ -19,6 +21,7 @@ namespace Mews.Fiscalization.Germany
         {
             var groupedPayments = bill.Payments.GroupBy(p => new { p.CurrencyCode, p.Type }).Select(g => new Payment(g.Sum(p => p.Amount), g.Key.Type, g.Key.CurrencyCode));
             var groupedItems = bill.Items.GroupBy(i => i.VatRateType).Select(g => new Item(g.Sum(i => i.Amount), g.Key));
+            Thread.CurrentThread.CurrentCulture = new CultureInfo("cz-CZ");
             return new Dto.FinishTransactionRequest
             {
                 ClientId = clientId,
