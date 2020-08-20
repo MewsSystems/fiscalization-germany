@@ -32,12 +32,13 @@ namespace Mews.Fiscalization.Germany
         private async Task<HttpResponseMessage> SendRequestAsync<TRequest>(HttpMethod method, string endpoint, TRequest request, AccessToken token)
             where TRequest : class
         {
-            var content = new StringContent(JsonConvert.SerializeObject(request, Formatting.None), Encoding.UTF8, "application/json");
             var uri = new Uri(BaseUri, $"{RelativeApiUrl}{endpoint}");
-            var requestMessage = new HttpRequestMessage(method, uri)
+            var requestMessage = new HttpRequestMessage(method, uri);
+
+            if (request != null)
             {
-                Content = content
-            };
+                requestMessage.Content = new StringContent(JsonConvert.SerializeObject(request, Formatting.None), Encoding.UTF8, "application/json");
+            }
 
             if (token != null)
             {
