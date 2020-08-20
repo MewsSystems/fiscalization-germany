@@ -53,7 +53,7 @@ namespace Mews.Fiscalization.Germany
         {
             return new Dto.AmountsPerPaymentType
             {
-                Amount = (payment.Amount + 0.00m).ToString("F", new CultureInfo("cz-CZ")),
+                Amount = (payment.Amount + 0.00m).ToString(CultureInfo.InvariantCulture),
                 CurrencyCode = payment.CurrencyCode,
                 PaymentType = SerializePaymentType(payment.Type)
             };
@@ -63,7 +63,7 @@ namespace Mews.Fiscalization.Germany
         {
             return new Dto.AmountsPerVatRate
             {
-                Amount = (item.Amount + 0.00m).ToString("F", new CultureInfo("cz-CZ")),
+                Amount = (item.Amount + 0.00m).ToString(CultureInfo.InvariantCulture),
                 VatRate = SerializeVatRateType(item.VatRateType)
             };
         }
