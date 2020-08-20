@@ -30,7 +30,7 @@ namespace Mews.Fiscalization.German.Tests
         {
             var client = GetClient();
             var accessToken = await client.GetAccessTokenAsync();
-            var startedTransaction = await client.StartTransactionAsync(accessToken.SuccessResult, ClientId, TssId);
+            var startedTransaction = await client.StartTransactionAsync(accessToken.SuccessResult, ClientId, TssId, Guid.NewGuid());
             var successResult = startedTransaction.SuccessResult;
 
             Assert.IsTrue(startedTransaction.IsSuccess);
@@ -44,7 +44,7 @@ namespace Mews.Fiscalization.German.Tests
             var client = GetClient();
             var accessToken = await client.GetAccessTokenAsync();
             var successAccessTokenResult = accessToken.SuccessResult;
-            var startedTransaction = await client.StartTransactionAsync(successAccessTokenResult, ClientId, TssId);
+            var startedTransaction = await client.StartTransactionAsync(successAccessTokenResult, ClientId, TssId, Guid.NewGuid());
             var endedTransaction = await client.FinishTransactionAsync(successAccessTokenResult, ClientId, TssId, GetBill(), startedTransaction.SuccessResult.Id, lastRevision: "1");
             var successResult = endedTransaction.SuccessResult;
             var signature = successResult.Signature;
