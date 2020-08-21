@@ -2,7 +2,6 @@
 using System;
 using System.Globalization;
 using System.Linq;
-using System.Threading;
 
 namespace Mews.Fiscalization.Germany
 {
