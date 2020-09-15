@@ -1,5 +1,6 @@
 ﻿using Mews.Fiscalization.Germany.Model;
 using Mews.Fiscalization.Germany.Utils;
+using System;
 
 namespace Mews.Fiscalization.Germany
 {
@@ -40,6 +41,39 @@ namespace Mews.Fiscalization.Germany
                 tssId: client.TssId,
                 id: client.Id
             ));
+        }
+
+        internal static ResponseResult<Model.Tss> MapTss(Dto.TssResponse tss)
+        {
+            return new ResponseResult<Model.Tss>(successResult: new Model.Tss(
+                id: tss.Id,
+                description: tss.Description,
+                state: MapTssState(tss.State),
+                createdUtc: tss.TimeCreation.FromUnixTime(),
+                initializedUtc: tss.TimeInit.FromUnixTime(),
+                disabledUtc: tss.TimeDisable.FromUnixTime(),
+                certificate: tss.Certificate,
+                certificateSerial: tss.CertificateSerial,
+                publicKey: tss.PublicKey,
+                signatureCounter: tss.SignatureCounter,
+                signatureAlgorithm: tss.SignatureAlgorithm,
+                transactionCounter: tss.TransactionCounter
+            ));
+        }
+
+        private static Model.TssState MapTssState(Dto.TssState state)
+        {
+            switch (state)
+            {
+                case Dto.TssState.DISABLED:
+                    return Model.TssState.Disabled;
+                case Dto.TssState.INITIALIZED:
+                    return Model.TssState.Initialized;
+                case Dto.TssState.UNINITIALIZED:
+                    return Model.TssState.Uninitialized;
+                default:
+                    throw new NotImplementedException($"Tss state: {state} is not implemented.");
+            };
         }
     }
 }
