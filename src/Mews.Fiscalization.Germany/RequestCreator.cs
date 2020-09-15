@@ -24,14 +24,6 @@ namespace Mews.Fiscalization.Germany
             };
         }
 
-        internal static Dto.TssRequest GetTss(Guid tssId)
-        {
-            return new Dto.TssRequest
-            {
-                TssId = tssId
-            };
-        }
-
         internal static Dto.CreateTssRequest CreateTss(TssState state, string description = "")
         {
             return new Dto.CreateTssRequest
