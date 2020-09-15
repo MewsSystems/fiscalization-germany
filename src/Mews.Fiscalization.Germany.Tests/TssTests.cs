@@ -27,7 +27,7 @@ namespace Mews.Fiscalization.Germany.Tests
         {
             var client = GetClient();
             var accessToken = (await client.GetAccessTokenAsync()).SuccessResult;
-            var tss = await client.GetTss(accessToken, TssId);
+            var tss = await client.GetTssAsync(accessToken, TssId);
 
             AssertTss(tss.IsSuccess, tss.SuccessResult.Id);
         }
