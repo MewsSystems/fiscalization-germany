@@ -49,12 +49,24 @@ namespace Mews.Fiscalization.Germany
             ).ConfigureAwait(continueOnCapturedContext: false);
         }
 
-        public async Task<ResponseResult<Model.Tss>> GetTss(AccessToken token, Guid tssId)
+        public async Task<ResponseResult<Tss>> GetTss(AccessToken token, Guid tssId)
         {
-            var request = RequestCreator.CreateTss(tssId);
-            return await Client.ProcessRequestAsync<Dto.TssRequest, Dto.TssResponse, Model.Tss>(
+            var request = RequestCreator.GetTss(tssId);
+            return await Client.ProcessRequestAsync<Dto.TssRequest, Dto.TssResponse, Tss>(
                 method: HttpMethod.Get,
                 endpoint: $"tss/{tssId}",
+                request: request,
+                successFunc: response => ModelMapper.MapTss(response),
+                token: token
+            ).ConfigureAwait(continueOnCapturedContext: false);
+        }
+
+        public async Task<ResponseResult<Tss>> CreateTssAsync(AccessToken token, TssState state, string description = null)
+        {
+            var request = RequestCreator.CreateTss(state, description);
+            return await Client.ProcessRequestAsync<Dto.CreateTssRequest, Dto.TssResponse, Tss>(
+                method: HttpMethod.Put,
+                endpoint: $"tss/{Guid.NewGuid()}",
                 request: request,
                 successFunc: response => ModelMapper.MapTss(response),
                 token: token

@@ -8,12 +8,12 @@ using System.Threading.Tasks;
 namespace Mews.Fiscalization.German.Tests
 {
     [TestFixture]
-    public class Tests
+    public class TransactionTests
     {
         private static readonly Guid ClientId = new Guid("INSERT_CLIENT_ID");
         private static readonly Guid TssId = new Guid("INSERT_TSS_ID");
         private static readonly ApiKey ApiKey = new ApiKey("INSERT_API_KEY");
-        private static readonly ApiSecret ApiSecret = new ApiSecret("INSERT_API_Secret");
+        private static readonly ApiSecret ApiSecret = new ApiSecret("INSERT_API_SECRET");
 
         [Test]
         public async Task StatusCheckSucceeds()
@@ -23,17 +23,6 @@ namespace Mews.Fiscalization.German.Tests
             var status = await client.GetClientAsync(accessToken, ClientId, TssId);
 
             Assert.IsTrue(status.IsSuccess);
-        }
-
-        [Test]
-        public async Task CreateClientSucceeds()
-        {
-            var client = GetClient();
-            var accessToken = (await client.GetAccessTokenAsync()).SuccessResult;
-            var createdClient = await client.CreateClientAsync(accessToken, TssId);
-
-            Assert.IsTrue(createdClient.IsSuccess);
-            Assert.IsNotNull(createdClient.SuccessResult.Id);
         }
 
         [Test]

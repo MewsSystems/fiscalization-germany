@@ -24,11 +24,20 @@ namespace Mews.Fiscalization.Germany
             };
         }
 
-        internal static Dto.TssRequest CreateTss(Guid tssId)
+        internal static Dto.TssRequest GetTss(Guid tssId)
         {
             return new Dto.TssRequest
             {
                 TssId = tssId
+            };
+        }
+
+        internal static Dto.CreateTssRequest CreateTss(TssState state, string description = "")
+        {
+            return new Dto.CreateTssRequest
+            {
+                Description = description,
+                State = SerializeTssState(state)
             };
         }
 
@@ -125,6 +134,21 @@ namespace Mews.Fiscalization.Germany
                     return Dto.VatRateType.SPECIAL_RATE_2;
                 default:
                     throw new NotImplementedException($"Vat rate type: {type} is not implemented.");
+            };
+        }
+
+        private static Dto.TssState SerializeTssState(TssState state)
+        {
+            switch (state)
+            {
+                case TssState.Disabled:
+                    return Dto.TssState.DISABLED;
+                case TssState.Initialized:
+                    return Dto.TssState.INITIALIZED;
+                case TssState.Uninitialized:
+                    return Dto.TssState.UNINITIALIZED;
+                default:
+                    throw new NotImplementedException($"Tss state: {state} is not implemented.");
             };
         }
     }
