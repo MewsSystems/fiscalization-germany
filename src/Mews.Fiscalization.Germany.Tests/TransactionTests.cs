@@ -26,6 +26,17 @@ namespace Mews.Fiscalization.German.Tests
         }
 
         [Test]
+        public async Task CreateClientSucceeds()
+        {
+            var client = GetClient();
+            var accessToken = (await client.GetAccessTokenAsync()).SuccessResult;
+            var createdClient = await client.CreateClientAsync(accessToken, TssId);
+
+            Assert.IsTrue(createdClient.IsSuccess);
+            Assert.IsNotNull(createdClient.SuccessResult.Id);
+        }
+
+        [Test]
         public async Task StartTransactionSucceeds()
         {
             var client = GetClient();

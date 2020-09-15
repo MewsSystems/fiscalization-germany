@@ -1,6 +1,8 @@
 ﻿using Mews.Fiscalization.Germany.Model;
 using System;
 using System.Net.Http;
+using System.Security.Cryptography.X509Certificates;
+using System.Text;
 using System.Threading.Tasks;
 
 namespace Mews.Fiscalization.Germany
@@ -32,12 +34,29 @@ namespace Mews.Fiscalization.Germany
 
         public async Task<ResponseResult<Model.Client>> CreateClientAsync(AccessToken token, Guid tssId)
         {
-            var request = RequestCreator.CreateClient(Guid.NewGuid().ToString());
+            var tss = await GetTss(token, tssId).ConfigureAwait(continueOnCapturedContext: false);
+            var tssCertificate = tss.SuccessResult.Certificate;
+            var certificate = new X509Certificate2(Encoding.UTF8.GetBytes(tssCertificate));
+            var serialNumber = certificate.GetCertHashString();
+
+            var request = RequestCreator.CreateClient(serialNumber);
             return await Client.ProcessRequestAsync<Dto.CreateClientRequest, Dto.ClientResponse, Model.Client>(
                 method: HttpMethod.Put,
                 endpoint: $"tss/{tssId}/client/{Guid.NewGuid()}",
                 request: request,
                 successFunc: response => ModelMapper.MapClient(response),
+                token: token
+            ).ConfigureAwait(continueOnCapturedContext: false);
+        }
+
+        public async Task<ResponseResult<Model.Tss>> GetTss(AccessToken token, Guid tssId)
+        {
+            var request = RequestCreator.CreateTss(tssId);
+            return await Client.ProcessRequestAsync<Dto.TssRequest, Dto.TssResponse, Model.Tss>(
+                method: HttpMethod.Get,
+                endpoint: $"tss/{tssId}",
+                request: request,
+                successFunc: response => ModelMapper.MapTss(response),
                 token: token
             ).ConfigureAwait(continueOnCapturedContext: false);
         }
