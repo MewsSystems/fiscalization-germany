@@ -24,7 +24,7 @@ namespace Mews.Fiscalization.Germany.Tests
         }
 
         [Test]
-        public async Task GetTssSucceeds()
+        public async Task GetClientSucceeds()
         {
             var client = GetClient();
             var accessToken = (await client.GetAccessTokenAsync()).SuccessResult;
