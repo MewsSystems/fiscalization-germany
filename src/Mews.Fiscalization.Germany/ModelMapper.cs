@@ -43,9 +43,9 @@ namespace Mews.Fiscalization.Germany
             ));
         }
 
-        internal static ResponseResult<Model.Tss> MapTss(Dto.TssResponse tss)
+        internal static ResponseResult<Tss> MapTss(Dto.TssResponse tss)
         {
-            return new ResponseResult<Model.Tss>(successResult: new Model.Tss(
+            return new ResponseResult<Tss>(successResult: new Tss(
                 id: tss.Id,
                 description: tss.Description,
                 state: MapTssState(tss.State),
@@ -61,7 +61,7 @@ namespace Mews.Fiscalization.Germany
             ));
         }
 
-        private static Model.TssState MapTssState(Dto.TssState state)
+        private static TssState MapTssState(Dto.TssState state)
         {
             switch (state)
             {
