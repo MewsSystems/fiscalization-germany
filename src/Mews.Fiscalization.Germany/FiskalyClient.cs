@@ -72,6 +72,18 @@ namespace Mews.Fiscalization.Germany
             ).ConfigureAwait(continueOnCapturedContext: false);
         }
 
+        public async Task<ResponseResult<Tss>> UpdateTssAsync(AccessToken token, Guid tssId, TssState state)
+        {
+            var request = RequestCreator.UpdateTss(state);
+            return await Client.ProcessRequestAsync<Dto.UpdateTssRequest, Dto.TssResponse, Tss>(
+                method: HttpMethod.Put,
+                endpoint: $"tss/{tssId}",
+                request: request,
+                successFunc: response => ModelMapper.MapTss(response),
+                token: token
+            ).ConfigureAwait(continueOnCapturedContext: false);
+        }
+
         public async Task<ResponseResult<Transaction>> StartTransactionAsync(AccessToken token, Guid clientId, Guid tssId, Guid transactionId)
         {
             var request = RequestCreator.CreateTransaction(clientId);
