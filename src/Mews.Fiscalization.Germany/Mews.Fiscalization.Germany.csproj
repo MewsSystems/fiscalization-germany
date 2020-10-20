@@ -1,23 +1,27 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-    <PropertyGroup>
-        <TargetFramework>netstandard2.0</TargetFramework>
-        <Authors>Mews</Authors>
-        <Copyright>Mews</Copyright>
-        <PackageProjectUrl>https://github.com/MewsSystems/fiscalization-germany</PackageProjectUrl>
-        <RepositoryUrl>https://github.com/MewsSystems/fiscalization-germany</RepositoryUrl>
-        <RepositoryType>Git</RepositoryType>
-        <PackageTags>fiscalization germany</PackageTags>
-        <PackageVersion>0.0.10-prerelease</PackageVersion>
-        <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    </PropertyGroup>
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <Authors>Mews</Authors>
+    <Copyright>Mews</Copyright>
+    <PackageProjectUrl>https://github.com/MewsSystems/fiscalization-germany</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/MewsSystems/fiscalization-germany</RepositoryUrl>
+    <RepositoryType>Git</RepositoryType>
+    <PackageTags>fiscalization germany</PackageTags>
+    <PackageVersion>1.0.0</PackageVersion>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+  </PropertyGroup>
+  
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <OutputPath>bin\</OutputPath>
+  </PropertyGroup>
+  
+  <ItemGroup>
+    <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
+  </ItemGroup>
 
-    <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-      <OutputPath>bin\</OutputPath>
-    </PropertyGroup>
-
-    <ItemGroup>
-      <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
-    </ItemGroup>
+  <PropertyGroup>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+  </PropertyGroup>
 
 </Project>
