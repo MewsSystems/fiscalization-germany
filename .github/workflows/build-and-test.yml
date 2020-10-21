@@ -16,6 +16,10 @@ jobs:
       DOTNET_NOLOGO: true
       DOTNET_CLI_TELEMETRY_OPTOUT: true
       
+    defaults:
+      run:
+        working-directory: src
+        
     steps:
     - name: Checkout
       uses: actions/checkout@v2
