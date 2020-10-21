@@ -1,5 +1,5 @@
-using Mews.Fiscalization.Germany;
 using Mews.Fiscalization.Germany.Model;
+using Mews.Fiscalization.Germany.Tests;
 using NUnit.Framework;
 using System;
 using System.Collections.Generic;
@@ -10,17 +10,13 @@ namespace Mews.Fiscalization.German.Tests
     [TestFixture]
     public class TransactionTests
     {
-        private static readonly Guid ClientId = new Guid(Environment.GetEnvironmentVariable("client_Id") ?? "INSERT_CLIENT_ID");
-        private static readonly Guid TssId = new Guid(Environment.GetEnvironmentVariable("tss_id") ?? "INSERT_TSS_ID");
-        private static readonly ApiKey ApiKey = new ApiKey(Environment.GetEnvironmentVariable("api_key") ?? "INSERT_API_KEY");
-        private static readonly ApiSecret ApiSecret = new ApiSecret(Environment.GetEnvironmentVariable("api_secret") ?? "INSERT_API_SECRET");
-
         [Test]
         public async Task StatusCheckSucceeds()
         {
-            var client = GetClient();
+            var clientData = TestFixture.GetClientData();
+            var client = TestFixture.GetFiskalyClient();
             var accessToken = (await client.GetAccessTokenAsync()).SuccessResult;
-            var status = await client.GetClientAsync(accessToken, ClientId, TssId);
+            var status = await client.GetClientAsync(accessToken, clientData.ClientId, clientData.TssId);
 
             Assert.IsTrue(status.IsSuccess);
         }
@@ -28,9 +24,10 @@ namespace Mews.Fiscalization.German.Tests
         [Test]
         public async Task StartTransactionSucceeds()
         {
-            var client = GetClient();
+            var clientData = TestFixture.GetClientData();
+            var client = TestFixture.GetFiskalyClient();
             var accessToken = await client.GetAccessTokenAsync();
-            var startedTransaction = await client.StartTransactionAsync(accessToken.SuccessResult, ClientId, TssId, Guid.NewGuid());
+            var startedTransaction = await client.StartTransactionAsync(accessToken.SuccessResult, clientData.ClientId, clientData.TssId, Guid.NewGuid());
             var successResult = startedTransaction.SuccessResult;
 
             Assert.IsTrue(startedTransaction.IsSuccess);
@@ -41,11 +38,14 @@ namespace Mews.Fiscalization.German.Tests
         [Test]
         public async Task StartAndFinishTransactionSucceeds()
         {
-            var client = GetClient();
+            var clientData = TestFixture.GetClientData();
+            var client = TestFixture.GetFiskalyClient();
+            var clientId = clientData.ClientId;
+            var tssId = clientData.TssId;
             var accessToken = await client.GetAccessTokenAsync();
             var successAccessTokenResult = accessToken.SuccessResult;
-            var startedTransaction = await client.StartTransactionAsync(successAccessTokenResult, ClientId, TssId, Guid.NewGuid());
-            var endedTransaction = await client.FinishTransactionAsync(successAccessTokenResult, ClientId, TssId, GetBill(), startedTransaction.SuccessResult.Id, lastRevision: "1");
+            var startedTransaction = await client.StartTransactionAsync(successAccessTokenResult, clientId, tssId, Guid.NewGuid());
+            var endedTransaction = await client.FinishTransactionAsync(successAccessTokenResult, clientId, tssId, GetBill(), startedTransaction.SuccessResult.Id, lastRevision: "1");
             var successResult = endedTransaction.SuccessResult;
             var signature = successResult.Signature;
 
@@ -84,11 +84,6 @@ namespace Mews.Fiscalization.German.Tests
                 new Item(30, VatRateType.Normal),
                 new Item(5, VatRateType.Reduced)
             };
-        }
-
-        private FiskalyClient GetClient()
-        {
-            return new FiskalyClient(ApiKey, ApiSecret);
         }
     }
 }

@@ -1,6 +1,4 @@
-﻿using Mews.Fiscalization.Germany.Model;
-using NUnit.Framework;
-using System;
+﻿using NUnit.Framework;
 using System.Threading.Tasks;
 
 namespace Mews.Fiscalization.Germany.Tests
@@ -8,17 +6,13 @@ namespace Mews.Fiscalization.Germany.Tests
     [TestFixture]
     public class ClientTests
     {
-        private static readonly Guid ClientId = new Guid(Environment.GetEnvironmentVariable("client_Id") ?? "INSERT_CLIENT_ID");
-        private static readonly Guid TssId = new Guid(Environment.GetEnvironmentVariable("tss_id") ?? "INSERT_TSS_ID");
-        private static readonly ApiKey ApiKey = new ApiKey(Environment.GetEnvironmentVariable("api_key") ?? "INSERT_API_KEY");
-        private static readonly ApiSecret ApiSecret = new ApiSecret(Environment.GetEnvironmentVariable("api_secret") ?? "INSERT_API_SECRET");
-
         [Test]
         public async Task CreateClientSucceeds()
         {
-            var client = GetClient();
+            var clientData = TestFixture.GetClientData();
+            var client = TestFixture.GetFiskalyClient();
             var accessToken = (await client.GetAccessTokenAsync()).SuccessResult;
-            var createdClient = await client.CreateClientAsync(accessToken, TssId);
+            var createdClient = await client.CreateClientAsync(accessToken, clientData.TssId);
 
             AssertClient(createdClient.IsSuccess, createdClient.SuccessResult.Id);
         }
@@ -26,16 +20,12 @@ namespace Mews.Fiscalization.Germany.Tests
         [Test]
         public async Task GetClientSucceeds()
         {
-            var client = GetClient();
+            var clientData = TestFixture.GetClientData();
+            var client = TestFixture.GetFiskalyClient();
             var accessToken = (await client.GetAccessTokenAsync()).SuccessResult;
-            var result = await client.GetClientAsync(accessToken, ClientId, TssId);
+            var result = await client.GetClientAsync(accessToken, clientData.ClientId, clientData.TssId);
 
             AssertClient(result.IsSuccess, result.SuccessResult.Id);
-        }
-
-        private FiskalyClient GetClient()
-        {
-            return new FiskalyClient(ApiKey, ApiSecret);
         }
 
         private void AssertClient(bool isSuccess, object value)
