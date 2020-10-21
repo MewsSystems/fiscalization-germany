@@ -13,10 +13,9 @@ namespace Mews.Fiscalization.German.Tests
         [Test]
         public async Task StatusCheckSucceeds()
         {
-            var clientData = TestFixture.GetClientData();
             var client = TestFixture.GetFiskalyClient();
             var accessToken = (await client.GetAccessTokenAsync()).SuccessResult;
-            var status = await client.GetClientAsync(accessToken, clientData.ClientId, clientData.TssId);
+            var status = await client.GetClientAsync(accessToken, TestFixture.ClientId, TestFixture.TssId);
 
             Assert.IsTrue(status.IsSuccess);
         }
@@ -24,10 +23,9 @@ namespace Mews.Fiscalization.German.Tests
         [Test]
         public async Task StartTransactionSucceeds()
         {
-            var clientData = TestFixture.GetClientData();
             var client = TestFixture.GetFiskalyClient();
             var accessToken = await client.GetAccessTokenAsync();
-            var startedTransaction = await client.StartTransactionAsync(accessToken.SuccessResult, clientData.ClientId, clientData.TssId, Guid.NewGuid());
+            var startedTransaction = await client.StartTransactionAsync(accessToken.SuccessResult, TestFixture.ClientId, TestFixture.TssId, Guid.NewGuid());
             var successResult = startedTransaction.SuccessResult;
 
             Assert.IsTrue(startedTransaction.IsSuccess);
@@ -38,10 +36,9 @@ namespace Mews.Fiscalization.German.Tests
         [Test]
         public async Task StartAndFinishTransactionSucceeds()
         {
-            var clientData = TestFixture.GetClientData();
             var client = TestFixture.GetFiskalyClient();
-            var clientId = clientData.ClientId;
-            var tssId = clientData.TssId;
+            var clientId = TestFixture.ClientId;
+            var tssId = TestFixture.TssId;
             var accessToken = await client.GetAccessTokenAsync();
             var successAccessTokenResult = accessToken.SuccessResult;
             var startedTransaction = await client.StartTransactionAsync(successAccessTokenResult, clientId, tssId, Guid.NewGuid());

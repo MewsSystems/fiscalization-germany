@@ -20,10 +20,9 @@ namespace Mews.Fiscalization.Germany.Tests
         [Test]
         public async Task GetTssSucceeds()
         {
-            var clientData = TestFixture.GetClientData();
             var client = TestFixture.GetFiskalyClient();
             var accessToken = (await client.GetAccessTokenAsync()).SuccessResult;
-            var tss = await client.GetTssAsync(accessToken, clientData.TssId);
+            var tss = await client.GetTssAsync(accessToken, TestFixture.TssId);
 
             AssertTss(tss.IsSuccess, tss.SuccessResult.Id);
         }

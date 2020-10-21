@@ -9,10 +9,9 @@ namespace Mews.Fiscalization.Germany.Tests
         [Test]
         public async Task CreateClientSucceeds()
         {
-            var clientData = TestFixture.GetClientData();
             var client = TestFixture.GetFiskalyClient();
             var accessToken = (await client.GetAccessTokenAsync()).SuccessResult;
-            var createdClient = await client.CreateClientAsync(accessToken, clientData.TssId);
+            var createdClient = await client.CreateClientAsync(accessToken, TestFixture.TssId);
 
             AssertClient(createdClient.IsSuccess, createdClient.SuccessResult.Id);
         }
@@ -20,10 +19,9 @@ namespace Mews.Fiscalization.Germany.Tests
         [Test]
         public async Task GetClientSucceeds()
         {
-            var clientData = TestFixture.GetClientData();
             var client = TestFixture.GetFiskalyClient();
             var accessToken = (await client.GetAccessTokenAsync()).SuccessResult;
-            var result = await client.GetClientAsync(accessToken, clientData.ClientId, clientData.TssId);
+            var result = await client.GetClientAsync(accessToken, TestFixture.ClientId, TestFixture.TssId);
 
             AssertClient(result.IsSuccess, result.SuccessResult.Id);
         }
