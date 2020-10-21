@@ -8,10 +8,10 @@ namespace Mews.Fiscalization.Germany.Tests
     [TestFixture]
     public class ClientTests
     {
-        private static readonly Guid ClientId = new Guid("INSERT_CLIENT_ID");
-        private static readonly Guid TssId = new Guid("INSERT_TSS_ID");
-        private static readonly ApiKey ApiKey = new ApiKey("INSERT_API_KEY");
-        private static readonly ApiSecret ApiSecret = new ApiSecret("INSERT_API_Secret");
+        private static readonly Guid ClientId = new Guid(Environment.GetEnvironmentVariable("client_Id") ?? "INSERT_CLIENT_ID");
+        private static readonly Guid TssId = new Guid(Environment.GetEnvironmentVariable("tss_id") ?? "INSERT_TSS_ID");
+        private static readonly ApiKey ApiKey = new ApiKey(Environment.GetEnvironmentVariable("api_key") ?? "INSERT_API_KEY");
+        private static readonly ApiSecret ApiSecret = new ApiSecret(Environment.GetEnvironmentVariable("api_secret") ?? "INSERT_API_SECRET");
 
         [Test]
         public async Task CreateClientSucceeds()
