@@ -37,7 +37,7 @@ jobs:
     
     - name: Test
       env:
-        client_id: ${{secrets.client_id}}
+        client_Id: ${{secrets.client_Id}}
         tss_id: ${{secrets.tss_id}}
         api_key: ${{secrets.api_key}}
         api_secret: ${{secrets.api_secret}}
