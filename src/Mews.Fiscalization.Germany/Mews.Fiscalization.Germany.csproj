@@ -2,6 +2,10 @@
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
+    <SuppressDependenciesWhenPacking>true</SuppressDependenciesWhenPacking>
+    <DevelopmentDependency>true</DevelopmentDependency>
+    <IncludeBuildOutput>false</IncludeBuildOutput>
+    <IncludeSymbols>false</IncludeSymbols>
     <Authors>Mews</Authors>
     <Copyright>Mews</Copyright>
     <PackageProjectUrl>https://github.com/MewsSystems/fiscalization-germany</PackageProjectUrl>
