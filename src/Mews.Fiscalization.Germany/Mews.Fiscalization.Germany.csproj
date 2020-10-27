@@ -5,6 +5,7 @@
     <Authors>Mews</Authors>
     <Copyright>Mews</Copyright>
     <PackageProjectUrl>https://github.com/MewsSystems/fiscalization-germany</PackageProjectUrl>
+    <License>https://github.com/MewsSystems/fiscalization-germany/blob/master/LICENSE</License>
     <RepositoryUrl>https://github.com/MewsSystems/fiscalization-germany</RepositoryUrl>
     <RepositoryType>Git</RepositoryType>
     <PackageTags>fiscalization germany</PackageTags>
