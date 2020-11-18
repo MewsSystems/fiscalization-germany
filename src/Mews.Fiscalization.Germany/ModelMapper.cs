@@ -66,11 +66,11 @@ namespace Mews.Fiscalization.Germany
             switch (state)
             {
                 case Dto.TssState.DISABLED:
-                    return Model.TssState.Disabled;
+                    return TssState.Disabled;
                 case Dto.TssState.INITIALIZED:
-                    return Model.TssState.Initialized;
+                    return TssState.Initialized;
                 case Dto.TssState.UNINITIALIZED:
-                    return Model.TssState.Uninitialized;
+                    return TssState.Uninitialized;
                 default:
                     throw new NotImplementedException($"Tss state: {state} is not implemented.");
             };
