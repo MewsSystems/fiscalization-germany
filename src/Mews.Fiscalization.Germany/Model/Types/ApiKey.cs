@@ -1,19 +1,25 @@
-﻿using Mews.Fiscalization.Core.Model;
+﻿using FuncSharp;
+using Mews.Fiscalization.Core.Model;
+using System.Text.RegularExpressions;
 
 namespace Mews.Fiscalization.Germany.Model
 {
-    public sealed class ApiKey : LimitedString
+    public sealed class ApiKey
     {
-        private static readonly StringLimitation Limitation = new StringLimitation(maxLength: 512, pattern: ".*[^\\s].*", allowEmptyOrWhiteSpace: false);
-
-        public ApiKey(string value)
-            : base(value, Limitation)
+        private ApiKey(string value)
         {
+            Value = value;
         }
 
-        public static bool IsValid(string value)
+        public string Value { get; }
+
+        public static ITry<ApiKey, INonEmptyEnumerable<Error>> Create(string value)
         {
-            return IsValid(value, Limitation);
+            return StringValidations.LengthInRange(value, 1, 512).FlatMap(v =>
+            {
+                var validApiKey = StringValidations.RegexMatch(v, new Regex(".*[^\\s].*"));
+                return validApiKey.Map(k => new ApiKey(k));
+            });
         }
     }
 }
