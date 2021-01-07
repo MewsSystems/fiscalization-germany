@@ -6,7 +6,7 @@ on:
 
 jobs:
   publish:
-    runs-on: ubuntu-latest
+    runs-on: windows-latest
 
     env:
       DOTNET_NOLOGO: true
@@ -25,15 +25,19 @@ jobs:
       with:
         dotnet-version: 3.1.x
 
+    - name: Clean
+      run: dotnet clean ./Mews.Fiscalization.Germany.sln --configuration Release && dotnet nuget locals all --clear
+      
     - name: Install dependencies
       run: dotnet restore
     
     - name: Build
       run: dotnet build --configuration Release --no-restore
 
-    - name: Set output
+    - name: Get the version
       id: vars
-      run: echo ::set-output name=tag::${GITHUB_REF#refs/*/}
+      run: echo ::set-output name=tag::${GITHUB_REF/refs\/tags\//}
+      shell: bash
 
     - name: Pack
       run: dotnet pack --output ./artifacts --configuration Release -p:Version=${{ steps.vars.outputs.tag }}
