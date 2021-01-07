@@ -1,19 +1,21 @@
-﻿using Mews.Fiscalization.Core.Model;
+﻿using FuncSharp;
+using Mews.Fiscalization.Core.Model;
+using System.Text.RegularExpressions;
 
 namespace Mews.Fiscalization.Germany.Model
 {
-    public sealed class ApiSecret : LimitedString
+    public sealed class ApiSecret
     {
-        private static readonly StringLimitation Limitation = new StringLimitation(pattern: "^[0-9A-Za-z]{43}$");
-
-        public ApiSecret(string value)
-            : base(value, Limitation)
+        private ApiSecret(string value)
         {
+            Value = value;
         }
 
-        public static bool IsValid(string value)
+        public string Value { get; }
+
+        public static ITry<ApiSecret, INonEmptyEnumerable<Error>> Create(string value)
         {
-            return IsValid(value, Limitation);
+            return StringValidations.RegexMatch(value, new Regex("^[0-9A-Za-z]{43}$")).Map(s => new ApiSecret(s));
         }
     }
 }
