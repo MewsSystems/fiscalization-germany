@@ -15,7 +15,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Mews.Fiscalization.Core" Version="2.0.6" />
+    <PackageReference Include="Mews.Fiscalization.Core" Version="2.0.7" />
     <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
     <PackageReference Include="System.Net.Http" Version="4.3.4" />
   </ItemGroup>
